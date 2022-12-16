@@ -28,14 +28,16 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     // 기능 : 회원 가입
-    public SignUpResponseDto signup (String userId, String username, String password){
+    public SignUpResponseDto signup (SignUpRequestDto signUpRequestDto){
         // 1. 중복 여부 검사
-        if(userRepository.existsByUserId(userId)){
+        if(userRepository.existsByUserId(signUpRequestDto.getUserId())){
             throw new IllegalArgumentException("존재하는 아이디 입니다");
         }
 
+        String encodePassword = passwordEncoder.encode(signUpRequestDto.getPassword());
+
         // 2. 암호화 및 저장
-        User user = new User(userId, username, passwordEncoder.encode(password));
+        User user = new User(signUpRequestDto.getUserId(), signUpRequestDto.getUsername(), encodePassword);
         userRepository.save(user);
 
         return new SignUpResponseDto(JOIN_OK);
@@ -49,7 +51,7 @@ public class UserService {
                 () -> new IllegalAccessError("유저가 존재하지 않습니다.")
         );
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {                                                   // 비밀번호 비교
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalAccessError("패스워드가 일치하지 않습니다.");
         }
 
