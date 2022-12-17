@@ -28,11 +28,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil){
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
+//    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil){
+//        this.userRepository = userRepository;
+//        this.passwordEncoder = passwordEncoder;
+//        this.jwtUtil = jwtUtil;
+//    }
 
     // 기능 : 회원 가입
     public SignUpResponseDto signup (SignUpRequestDto signUpRequestDto){
@@ -45,7 +45,6 @@ public class UserService {
 
         // 2. 암호화 및 저장
         User user = new User(signUpRequestDto.getUserId(), signUpRequestDto.getUsername(), encodePassword);
-        user
         userRepository.save(user);
 
         return new SignUpResponseDto(JOIN_OK);
