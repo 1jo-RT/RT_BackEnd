@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 // 1. 기능    : 회원 관련 종합 컨트롤러 (회원가입, 로그인)
 // 2. 작성자  : 조소영
@@ -22,7 +23,7 @@ public class UserController {
     // 회원가입
     @PostMapping
     public ResponseEntity<?> signup(
-            @RequestBody SignUpRequestDto signUpRequestDto){
+            @RequestBody @Valid SignUpRequestDto signUpRequestDto){
         return new ResponseEntity<>(userService.signup(signUpRequestDto), HttpStatus.OK);
     }
 
