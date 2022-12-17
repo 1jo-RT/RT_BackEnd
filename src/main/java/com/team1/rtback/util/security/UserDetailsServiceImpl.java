@@ -8,9 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-// 1. 기능 : DB에서 정보 가져오기
+// 1. 기능   : DB에서 정보 가져오기
 // 2. 작성자 : 조소영
-// 3. 생성날자 : 2022-12-16
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {

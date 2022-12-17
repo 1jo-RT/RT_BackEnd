@@ -17,9 +17,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
-// 1. 기능 : Spring Security 설정
+// 1. 기능   : Spring Security 설정
 // 2. 작성자 : 조소영
-// 3. 생성날자 : 2022-12-16
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity

@@ -7,9 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-// 1. 기능 : 인증 객체
+// 1. 기능   : 인증 객체
 // 2. 작성자 : 조소영
-// 3. 생성날자 : 2022-12-16
 @Getter
 public class UserDetailsImpl implements UserDetails {
     private final User user;

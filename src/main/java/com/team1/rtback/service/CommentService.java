@@ -11,34 +11,37 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// 1. 기능    : 댓글 서비스
+// 2. 작성자  : 박영준
 @Service
 @RequiredArgsConstructor
-
 public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
 
-    //댓글 작성
+    // 댓글 작성
     @Transactional
     public CommentResponseDto createComment(Long id, CommentRequestDto commentRequestDto, User user) {
+
+        // 1. 요청한 게시글 존재여부 확인
         Board board = boardRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("없는 글임")
         );
 
+        // 2. 게시글에 댓글 작성
         Comment comment = commentRepository.save(new Comment(commentRequestDto, board, user));
 
         return new CommentResponseDto(comment);
     }
 
-    //댓글 수정
+    // 댓글 수정
     @Transactional
     public CommentResponseDto updateComment(Long boardId, Long cmtId, CommentRequestDto commentRequestDto, User user) {
-        //DB 에 게시글 저장 확인
+
+        // 1. 요청한 게시글 존재여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow (
                 () -> new IllegalArgumentException("없는 글임")
         );
-
-        Comment comment;
 
 //        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
 //            comment = commentRepository.findById(cmtId).orElseThrow(
@@ -50,25 +53,26 @@ public class CommentService {
 //                    () -> new IllegalArgumentException("계정 불일치")
 //            );
 //        }
-
+        // 2. 댓글 수정 권한 검증
+        Comment comment;
         comment = commentRepository.findByIdAndUserId(cmtId, user.getId()).orElseThrow(
                 () -> new IllegalArgumentException("계정 불일치")
         );
 
+        // 3. 해당 댓글 수정
         comment.update(commentRequestDto);
 
         return new CommentResponseDto(comment);
     }
 
-    //댓글 삭제
+    // 댓글 삭제
     @Transactional
     public CommentResponseDto deleteComment(Long boardId, Long cmtId, User user) {
-        //DB 에 게시글 저장 확인
+
+        // 1. 요청한 게시글 존재여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow (
                 () -> new IllegalArgumentException("없는 글임")
         );
-
-        Comment comment;
 
 //        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
 //            comment = commentRepository.findById(cmtId).orElseThrow(
@@ -79,12 +83,13 @@ public class CommentService {
 //                    () -> new IllegalArgumentException("계정 불일치")
 //            );
 //        }
-
+        // 2. 댓글 삭제 권한 검증
+        Comment comment;
         comment = commentRepository.findByIdAndUserId(cmtId, user.getId()).orElseThrow(
                 () -> new IllegalArgumentException("계정 불일치")
         );
 
-        //해당 댓글 삭제
+        // 3. 해당 댓글 삭제
         commentRepository.deleteById(cmtId);
 
         return new CommentResponseDto(comment);

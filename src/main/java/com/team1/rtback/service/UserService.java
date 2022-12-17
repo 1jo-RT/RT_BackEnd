@@ -16,9 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import static com.team1.rtback.dto.global.SuccessCode.JOIN_OK;
 import static com.team1.rtback.dto.global.SuccessCode.LOGIN_OK;
 
-// 1. 기능 : Spring Security 설정
+// 1. 기능   : 유저 서비스
 // 2. 작성자 : 조소영
-// 3. 생성날자 : 2022-12-16
 @Service
 @RequiredArgsConstructor
 public class UserService {
