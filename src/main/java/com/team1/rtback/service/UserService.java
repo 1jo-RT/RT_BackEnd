@@ -7,6 +7,7 @@ import com.team1.rtback.dto.user.SignUpResponseDto;
 import com.team1.rtback.entity.User;
 import com.team1.rtback.repository.UserRepository;
 import com.team1.rtback.util.jwt.JwtUtil;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil){
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
+
     // 기능 : 회원 가입
     public SignUpResponseDto signup (SignUpRequestDto signUpRequestDto){
         // 1. 중복 여부 검사
@@ -38,6 +45,7 @@ public class UserService {
 
         // 2. 암호화 및 저장
         User user = new User(signUpRequestDto.getUserId(), signUpRequestDto.getUsername(), encodePassword);
+        user
         userRepository.save(user);
 
         return new SignUpResponseDto(JOIN_OK);

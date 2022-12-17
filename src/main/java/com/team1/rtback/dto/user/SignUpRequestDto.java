@@ -18,4 +18,8 @@ public class SignUpRequestDto {
     private String password;
 
     private String username;
+
+    // 테스트 코드용 생성자
+    public SignUpRequestDto(String userId, String password, String username) {
+    }
 }

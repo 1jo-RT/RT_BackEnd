@@ -100,8 +100,8 @@ public class JwtUtil {
 
 
     //인증 객체를 실제로 만드는 부분
-    public Authentication createAuthentication(String username) {
-        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
+    public Authentication createAuthentication(String userId) {
+        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(userId);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }
