@@ -3,9 +3,7 @@ package com.team1.rtback.entity;
 import com.team1.rtback.dto.board.BoardRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -13,14 +11,15 @@ import java.time.LocalDateTime;
 public class Board extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "boardidx")
     private Long Id;
 
     @Column(nullable = false)
     private String title;
 
+    @ManyToOne
     @JoinColumn(name = "userIdx", nullable = false)
-    private Long userIdx;
+    private User user;
 
     @Column(nullable = false)
     private String username;
@@ -35,14 +34,15 @@ public class Board extends Timestamped {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.username = user.getUsername();
-        this.userIdx = requestDto.getUserIdx();
         this.imgUrl = requestDto.getImgUrl();
+        this.user = user;
     }
 
-    public void update(BoardRequestDto requestDto) {
+    public void update(BoardRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        this.userIdx = requestDto.getUserIdx();
         this.imgUrl = requestDto.getImgUrl();
+        this.user = user;
     }
+
 }

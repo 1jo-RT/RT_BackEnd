@@ -2,15 +2,14 @@ package com.team1.rtback.controller;
 
 import com.team1.rtback.dto.board.BoardRequestDto;
 import com.team1.rtback.dto.board.BoardResponseDto;
-import com.team1.rtback.dto.global.GlobalDto;
-import com.team1.rtback.entity.User;
-import com.team1.rtback.repository.BoardRepository;
 import com.team1.rtback.service.BoardService;
+import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -18,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardController {
 
-    private final BoardRepository boardRepository;
     private final BoardService boardService;
 
     @GetMapping("/boards")
@@ -32,18 +30,19 @@ public class BoardController {
     }
 
     @PostMapping("/boards")
-    public BoardResponseDto createBoard(@RequestBody BoardRequestDto requestDto) {
-        return boardService.createBoard(requestDto);
+    public ResponseEntity<?> createBoard(@RequestBody BoardRequestDto requestDto,
+                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new ResponseEntity<>(boardService.createBoard(requestDto, userDetails.getUser()), HttpStatus.OK);
     }
 
     @PutMapping("/boards/{boardId}")
-    public BoardResponseDto updateBoard(@PathVariable Long boardId,
+    public ResponseEntity<?> updateBoard(@PathVariable Long boardId, @AuthenticationPrincipal UserDetailsImpl userDetails,
                                         @RequestBody BoardRequestDto requestDto) {
-        return boardService.updateBoard(boardId, requestDto);
+        return new ResponseEntity<>(boardService.updateBoard(boardId, requestDto, userDetails.getUser()), HttpStatus.OK);
     }
 
     @DeleteMapping("/boards/{boardId}")
-    public GlobalDto deleteBoard(@PathVariable Long boardId) {
-        return boardService.deleteBoard(boardId);
+    public ResponseEntity<?> deleteBoard(@PathVariable Long boardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new ResponseEntity<>(boardService.deleteBoard(boardId, userDetails.getUser()), HttpStatus.OK);
     }
 }

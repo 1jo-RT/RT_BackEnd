@@ -22,7 +22,17 @@ public class BoardResponseDto {
         this.modifiedAt = board.getModifiedAt();
         this.id = board.getId();
         this.title = board.getTitle();
-        this.userIdx = board.getUserIdx();
+        this.userIdx = board.getUser().getId();
+        this.username = board.getUsername();
+        this.content = board.getContent();
+    }
+
+    public BoardResponseDto(Board board, Long userId) {
+        this.createdAt = board.getCreatedAt();
+        this.modifiedAt = board.getModifiedAt();
+        this.id = board.getId();
+        this.title = board.getTitle();
+        this.userIdx = userId;
         this.username = board.getUsername();
         this.content = board.getContent();
     }
