@@ -4,15 +4,18 @@ import com.team1.rtback.dto.board.BoardRequestDto;
 import com.team1.rtback.dto.board.BoardResponseDto;
 import com.team1.rtback.dto.comment.CommentResponseDto;
 import com.team1.rtback.dto.global.GlobalDto;
+import com.team1.rtback.dto.global.MsgResponseDto;
 import com.team1.rtback.entity.Board;
+import com.team1.rtback.entity.BoardLike;
 import com.team1.rtback.entity.Comment;
 import com.team1.rtback.entity.User;
+import com.team1.rtback.repository.BoardLikeRepository;
 import com.team1.rtback.repository.BoardRepository;
 import com.team1.rtback.repository.CommentRepository;
 import com.team1.rtback.repository.UserRepository;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.ArrayList;
 import java.util.List;
 
-
 // 1. 기능    : 게시글 서비스
 // 2. 작성자  : 서혁수
+// 추가) 1. 기능 : 게시글 좋아요,  2. 작성자 : 박영준
 @Builder
 @Service
 @RequiredArgsConstructor
@@ -31,9 +34,10 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final BoardLikeRepository boardLikeRepository;
 
     // 전체 글 읽기
-    public List<BoardResponseDto> getAllBoard() {
+    public List<BoardResponseDto> getAllBoard(User user) {
 
 //        List<Board> boardList = boardRepository.findAll();
 //
@@ -64,7 +68,7 @@ public class BoardService {
                 }
 
                 // 5. 최종적으로 하나의 리스트로 형성해서 하나씩 result 에 담는다.
-                result.add(new BoardResponseDto(board, commentList));
+                result.add(new BoardResponseDto(board, commentList, checkBoardLike(board.getId(), user)));
             }
         }
 
@@ -72,7 +76,7 @@ public class BoardService {
     }
 
     // 게시글 읽기
-    public List<BoardResponseDto> getBoard(Long boardId) {
+    public List<BoardResponseDto> getBoard(Long boardId, User user) {
 
         // 1. 요청한 글 존재 여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow(
@@ -94,7 +98,7 @@ public class BoardService {
         }
 
         // 5. 리스트로 반환하기 위해서 result 넣어준다.
-        result.add(new BoardResponseDto(board, commentList));
+        result.add(new BoardResponseDto(board, commentList, checkBoardLike(board.getId(), user)));
 
         return result;
     }
@@ -144,5 +148,32 @@ public class BoardService {
         boardRepository.delete(board);
 
         return new GlobalDto(200, "삭제 완료");
+    }
+
+    // 게시글 좋아요 확인
+    @Transactional(readOnly = true)
+    public boolean checkBoardLike(Long boardId, User user) {
+        // DB 에서 해당 유저의 게시글 좋아요 여부 확인
+        return boardLikeRepository.existsByBoardIdAndUserId(boardId, user.getId());
+    }
+
+    // 게시글 좋아요 생성 및 삭제
+    @Transactional
+    public MsgResponseDto createBoardLike(Long boardId, User user) {
+        // 1. 요청한 글이 DB 에 존재하는지 확인
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                () -> new IllegalArgumentException("없는 글임")
+        );
+
+        // 2. 해당 유저의 게시글 좋아요 여부를 확인해서 false 라면
+        if (!checkBoardLike(boardId, user)) {
+            // 3. 즉시 해당 유저의 게시글 좋아요를 DB 에 저장
+            boardLikeRepository.saveAndFlush(new BoardLike(board, user));
+            return new MsgResponseDto(HttpStatus.OK.value(), "게시글 좋아요 완료");
+        // 4. 게시글 좋아요 여부가 true 라면, 해당 유저의 게시글 좋아요를 DB 에서 삭제
+        } else {
+            boardLikeRepository.deleteByBoardIdAndUserId(boardId, user.getId());
+            return new MsgResponseDto(HttpStatus.OK.value(), "게시글 좋아요 취소");
+        }
     }
 }
