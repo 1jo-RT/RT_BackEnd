@@ -1,13 +1,17 @@
 package com.team1.rtback.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.team1.rtback.dto.user.LoginRequestDto;
 import com.team1.rtback.dto.user.SignUpRequestDto;
+import com.team1.rtback.service.KakaoService;
 import com.team1.rtback.service.UserService;
+import com.team1.rtback.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -19,6 +23,7 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final KakaoService kakaoService;
 
     // 회원가입
     @PostMapping
@@ -27,10 +32,25 @@ public class UserController {
         return new ResponseEntity<>(userService.signup(signUpRequestDto), HttpStatus.OK);
     }
 
-    // 로그인
+    // 폼 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
         return new ResponseEntity<>(userService.login(loginRequestDto, response), HttpStatus.OK);
+    }
+
+    // 카카오 로그인
+    @GetMapping("/kakao/callback")
+    public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        // code: 카카오 서버로부터 받은 인가 코드
+        // 인가코드를 서비스로 전달
+        String createToken = kakaoService.kakaoLogin(code, response);
+
+        // Cookie 생성 및 직접 브라우저에 Set
+        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        return "redirect:/";
     }
 
 }
