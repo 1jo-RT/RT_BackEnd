@@ -15,6 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 // 1. 기능   : Spring Security 설정
@@ -35,9 +38,9 @@ public class WebSecurityConfig {
     //
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
-        // h2 접근 요청은 인증 무시
+        // 모든 static 리소스 접근 허가
         return (web) -> web.ignoring()
-                .requestMatchers(PathRequest.toH2Console());
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     //
@@ -53,10 +56,45 @@ public class WebSecurityConfig {
                 .antMatchers(HttpMethod.GET).permitAll()
                 .antMatchers("/api/user/**").permitAll()
                 .anyRequest().authenticated()
+
+                // corsConfigurationSource  적용
+                .and()
+                .cors()
+
                 .and()
                 .addFilterBefore(new JwtAuthFilter(jwtUtil),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // CORS 이슈
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+
+        CorsConfiguration config = new CorsConfiguration();
+
+        // 접근 가능한 출처
+        config.addAllowedOrigin("http://localhost:3030");
+
+        // 클라이언트가 접근 가능한 헤더 지정 (토큰 사용 가능하게)
+        config.addExposedHeader(JwtUtil.AUTHORIZATION_HEADER);
+
+        // 본 요청에 허용할 HTTP method
+        config.addAllowedMethod("*");
+
+        // 본 요청에 허용할 HTTP header
+        config.addAllowedHeader("*");
+
+        // 브라우저에서 인증 관련 정보들을 요청에 담을 수 있도록 허가
+        config.setAllowCredentials(true);
+        // allowedOrigin의 값이 * (즉, 모두 허용)이 설정될 수 없도록 검증
+        config.validateAllowCredentials();
+
+        // 설정을 적용할 경로 지정
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 }
