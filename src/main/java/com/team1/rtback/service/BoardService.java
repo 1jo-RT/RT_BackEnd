@@ -1,29 +1,35 @@
 package com.team1.rtback.service;
 
+import com.fasterxml.jackson.databind.node.LongNode;
 import com.team1.rtback.dto.board.BoardRequestDto;
 import com.team1.rtback.dto.board.BoardResponseDto;
 import com.team1.rtback.dto.comment.CommentResponseDto;
 import com.team1.rtback.dto.global.GlobalDto;
 import com.team1.rtback.entity.Board;
+import com.team1.rtback.entity.BoardImage;
 import com.team1.rtback.entity.Comment;
 import com.team1.rtback.entity.User;
+import com.team1.rtback.repository.BoardImageRepository;
 import com.team1.rtback.repository.BoardRepository;
 import com.team1.rtback.repository.CommentRepository;
 import com.team1.rtback.repository.UserRepository;
-import lombok.Builder;
+import com.team1.rtback.util.S3.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 // 1. 기능    : 게시글 서비스
 // 2. 작성자  : 서혁수
-@Builder
+//@Builder
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -31,6 +37,11 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final S3Uploader s3Uploader;
+    private final BoardImageRepository boardImageRepository;
+
+    @Value("${aws.url}")
+    public String awsUrl;
 
     // 전체 글 읽기
     public List<BoardResponseDto> getAllBoard() {
@@ -99,27 +110,55 @@ public class BoardService {
         return result;
     }
 
+    @Transactional
     // 게시글 작성
-    public BoardResponseDto createBoard(@RequestBody BoardRequestDto requestDto, User user) {
-        Board board = new Board(requestDto, user);
-        boardRepository.save(board);
+    public BoardResponseDto createBoard(BoardRequestDto requestDto, MultipartFile multipartFile, User user) throws IOException {
+        String imgName;
+
+        if (!multipartFile.isEmpty()) {
+            imgName = s3Uploader.boardImgUpload(multipartFile);
+        } else {
+            imgName = "";
+        }
+
+        Board board = new Board(requestDto, user, imgName);
+
+        // 세이브가 리턴을 해줌으로 인해서 boardResult 에서 게시글 번호를 가져올 수 있게 된다.
+        // 여기서 말하는 리턴은 세이브가 저장해준 값을 리턴해준다고 한다.
+        Board boardResult = boardRepository.save(board);
+
+        BoardImage boardImage = new BoardImage(boardResult.getId(), user.getId(), imgName);
+        boardImageRepository.save(boardImage);
+
         return new BoardResponseDto(board, user.getId());
     }
 
     // 게시글 수정
     @Transactional
-    public BoardResponseDto updateBoard(Long boardId, BoardRequestDto requestDto, User user) {
+    public BoardResponseDto updateBoard(Long boardId, BoardRequestDto requestDto, MultipartFile multipartFile, User user) throws IOException {
+        String imgName;
 
         // 1. 요청한 글 존재 여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new IllegalArgumentException("없는 글임")
-        );
+                () -> new IllegalArgumentException("없는 글임"));
 
-        // 2. 글 작성자와 같은 계정인지 검증 후 수정
-        if (user.getId() == board.getUser().getId()) {
-            board.update(requestDto, user);
-        } else
+        // 2. 글 작성자와 같은 계정인지 검증
+        if (user.getId() != board.getUser().getId())
             throw new IllegalArgumentException("계정 불일치");
+
+//        if (!board.getImgUrl().equals("")) {
+//            imgName = s3Uploader.boardImgUpload(multipartFile);
+//            board.update(requestDto, user, imgName);
+//        }
+        imgName = board.getImgUrl();
+
+        if (!board.getImgUrl().equals(imgName)) {
+            imgName = s3Uploader.boardImgUpload(multipartFile);
+        } else if (imgName.equals("")) {
+            imgName = "";
+        }
+
+        board = new Board(requestDto, user, imgName);
 
         return new BoardResponseDto(board, user.getId());
     }
@@ -145,4 +184,5 @@ public class BoardService {
 
         return new GlobalDto(200, "삭제 완료");
     }
+
 }
