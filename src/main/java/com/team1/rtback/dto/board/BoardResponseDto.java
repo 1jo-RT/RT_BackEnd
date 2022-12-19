@@ -21,8 +21,8 @@ public class BoardResponseDto {
     private Long userIdx;                   // 게시글 작성자 고유번호
     private String username;                // 게시글 작성자 명
     private String content;                 // 게시글 내용
-
     private List<CommentResponseDto> commentList = new ArrayList<>();
+    private Long commentLikeCount;
 
     // 게시글 작성용 메서드
     public BoardResponseDto(Board board, Long userId) {
@@ -44,6 +44,7 @@ public class BoardResponseDto {
         this.userIdx = board.getUser().getId();
         this.username = board.getUsername();
         this.content = board.getContent();
+        this.commentLikeCount = board.getBoardLikeCount();
         this.commentList = commentList;
     }
 }

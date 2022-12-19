@@ -54,7 +54,7 @@ public class WebSecurityConfig {
         http.httpBasic().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET).permitAll()
-                .antMatchers("/api/user/**").permitAll()
+                .antMatchers("/api/user/**", "/images").permitAll()
                 .anyRequest().authenticated()
 
                 // corsConfigurationSource  적용

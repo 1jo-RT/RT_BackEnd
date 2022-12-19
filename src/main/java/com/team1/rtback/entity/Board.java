@@ -32,6 +32,9 @@ public class Board extends Timestamped {
     @Column
     private String imgUrl;                                  // 게시글 이미지 파일 정보
 
+    @Column
+    private Long boardLikeCount = 0L;
+
     // 게시글 작성 메서드
     public Board(BoardRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
@@ -49,4 +52,7 @@ public class Board extends Timestamped {
         this.user = user;
     }
 
+    public void likeCount(Long boardLikeCount) {
+        this.boardLikeCount = boardLikeCount;
+    }
 }
