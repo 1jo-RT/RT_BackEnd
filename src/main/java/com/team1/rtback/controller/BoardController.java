@@ -49,4 +49,10 @@ public class BoardController {
                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return new ResponseEntity<>(boardService.deleteBoard(boardId, userDetails.getUser()), HttpStatus.OK);
     }
+
+    @PostMapping("/{boardId}/like")
+    public ResponseEntity<?> boardLike(@PathVariable Long boardId,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new ResponseEntity<>(boardService.likeCount(boardId, userDetails.getUser()), HttpStatus.OK);
+    }
 }

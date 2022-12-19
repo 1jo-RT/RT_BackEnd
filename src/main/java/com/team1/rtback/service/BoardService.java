@@ -5,8 +5,10 @@ import com.team1.rtback.dto.board.BoardResponseDto;
 import com.team1.rtback.dto.comment.CommentResponseDto;
 import com.team1.rtback.dto.global.GlobalDto;
 import com.team1.rtback.entity.Board;
+import com.team1.rtback.entity.BoardLike;
 import com.team1.rtback.entity.Comment;
 import com.team1.rtback.entity.User;
+import com.team1.rtback.repository.BoardLikeRepository;
 import com.team1.rtback.repository.BoardRepository;
 import com.team1.rtback.repository.CommentRepository;
 import com.team1.rtback.repository.UserRepository;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 // 1. 기능    : 게시글 서비스
@@ -31,6 +34,8 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final BoardLikeRepository boardLikeRepository;
+
 
     // 전체 글 읽기
     public List<BoardResponseDto> getAllBoard() {
@@ -139,10 +144,38 @@ public class BoardService {
         // 3. 요청한 글의 모든 댓글 리스트 가져오기
         List<Comment> commentList = commentRepository.findAllByBoard_IdOrderByCreatedAtDesc(boardId);
 
-        // 4. 모든 댓글 삭제 후 글 삭제
+        // 4. 요청한 글의 모든 좋아요 리스트 가져오기
+        List<BoardLike> boardLikeList = boardLikeRepository.findAllByBoardId(boardId);
+
+        // 5. 모든 댓글 및 좋아요 삭제 후 글 삭제
+        boardLikeRepository.deleteAll(boardLikeList);
         commentRepository.deleteAll(commentList);
         boardRepository.delete(board);
 
         return new GlobalDto(200, "삭제 완료");
+    }
+
+    // 게시글 좋아요
+    @Transactional
+    public GlobalDto likeCount(Long boardId, User user) {
+
+        // 1. 요청한 글 존재 여부 확인
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                () -> new IllegalArgumentException("없는 글임")
+        );
+
+        Optional<BoardLike> boardLike;
+        boardLike = boardLikeRepository.findAllByBoardIdAndUserId(board.getId(), user.getId());
+
+        //
+        if (boardLike.isEmpty()) {
+            boardLikeRepository.save(new BoardLike(board, user));
+            board.likeCount(board.getBoardLikeCount() + 1);
+            return new GlobalDto(200, "좋아요 완료");
+        } else {
+            boardLikeRepository.deleteBoardLikeById(boardLike.get().getId());
+            board.likeCount(board.getBoardLikeCount() - 1);
+            return new GlobalDto(200, "좋아요 취소");
+        }
     }
 }
