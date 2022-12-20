@@ -1,28 +1,23 @@
 package com.team1.rtback.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team1.rtback.dto.user.*;
+import com.team1.rtback.entity.Board;
 import com.team1.rtback.entity.User;
 import com.team1.rtback.entity.UserRoleEnum;
+import com.team1.rtback.repository.BoardLikeRepository;
+import com.team1.rtback.repository.BoardRepository;
+import com.team1.rtback.repository.CommentRepository;
 import com.team1.rtback.repository.UserRepository;
 import com.team1.rtback.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.UUID;
+import java.util.List;
 
 import static com.team1.rtback.dto.global.SuccessCode.JOIN_OK;
 import static com.team1.rtback.dto.global.SuccessCode.LOGIN_OK;
@@ -34,6 +29,9 @@ import static com.team1.rtback.dto.global.SuccessCode.LOGIN_OK;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
+    private final BoardLikeRepository boardLikeRepository;
+    private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -66,8 +64,17 @@ public class UserService {
             throw new IllegalAccessError("패스워드가 일치하지 않습니다.");
         }
 
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), UserRoleEnum.USER.getAuthority()));
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUserId(), user.getUsername(), UserRoleEnum.USER.getAuthority()));
 
         return new LoginResponseDto(LOGIN_OK);
+    }
+
+    @Transactional
+    public DeleteUserResponseDto deleteUser(User user){
+
+        boardLikeRepository.deleteAllByUser(user);
+        boardRepository.deleteAllByUser(user);
+        userRepository.delete(user);
+        return new DeleteUserResponseDto();
     }
 }

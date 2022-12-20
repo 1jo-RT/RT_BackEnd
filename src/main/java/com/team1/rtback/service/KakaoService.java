@@ -3,6 +3,8 @@ package com.team1.rtback.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team1.rtback.dto.global.SuccessCode;
+import com.team1.rtback.dto.user.KakaoResponseDto;
 import com.team1.rtback.dto.user.KakaoUserInfoDto;
 import com.team1.rtback.entity.User;
 import com.team1.rtback.entity.UserRoleEnum;
@@ -33,8 +35,8 @@ public class KakaoService {
 
 
     // kakao 로그인해 사용자 정보 가져오기
-    public String kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
-        // 1. "인가 코드에서 액세스 토큰 얻기
+    public KakaoResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+        // 1. 인가 코드에서 액세스 토큰 얻기
         String accessToken = getToken(code);
 
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
@@ -43,11 +45,10 @@ public class KakaoService {
         // 3. 필요시에 회원가입
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
-        // 4. JWT 토큰 반환
-        String createToken =  jwtUtil.createToken(kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority());
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
+        // 4. JWT 토큰 헤더로 반환
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority()));
 
-        return createToken;
+        return new KakaoResponseDto(SuccessCode.LOGIN_OK);
     }
 
     // "인가 코드"로 "액세스 토큰" 요청
@@ -59,8 +60,8 @@ public class KakaoService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "dd85d1962ab38cf792ef3bb11ba26699");
-        body.add("redirect_uri", "http://localhost:8080/api/user/kakao/callback");
+        body.add("client_id", "1bb390131e75b06d3bacd5562df5b3ac");
+        body.add("redirect_uri", "http://13.209.84.31:8080/api/user/kakao/callback");
         body.add("code", code);
 
         // HTTP Entity에 생성한 헤더와 바디 Set
@@ -102,6 +103,7 @@ public class KakaoService {
         );
 
         String responseBody = response.getBody();
+        System.out.println("responseBody = " + responseBody);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         Long id = jsonNode.get("id").asLong();
@@ -137,7 +139,7 @@ public class KakaoService {
                 // 카카오 email
                 String email = kakaoUserInfo.getEmail();
 
-                kakaoUser = new User(kakaoUserInfo.getNickname(), kakaoId, encodedPassword, email, UserRoleEnum.USER);
+                kakaoUser = new User(kakaoId.toString(), kakaoUserInfo.getNickname(), kakaoId, email, encodedPassword, UserRoleEnum.USER);
             }
 
             userRepository.save(kakaoUser);

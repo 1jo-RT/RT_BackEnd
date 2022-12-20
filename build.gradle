@@ -32,6 +32,8 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation group: 'com.mysql', name: 'mysql-connector-j', version: '8.0.31'
+
+
 }
 
 //tasks.named('test') {

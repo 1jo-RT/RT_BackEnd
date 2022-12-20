@@ -53,11 +53,12 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String username, String role){
+    public String createToken(String userId, String username, String role){
         Date date = new Date();
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(username)
+                        .claim("userId" , userId)
+                        .claim( "username" , username)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)

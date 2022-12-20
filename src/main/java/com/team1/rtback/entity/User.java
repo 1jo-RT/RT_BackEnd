@@ -28,7 +28,7 @@ public class User {
     @Column(nullable = false)
     private String password;                            // 유저 비밀번호
 
-    @Column(nullable = false, unique = true)
+    @Column
     private String email;
 
     @Column(nullable = false)
@@ -40,9 +40,11 @@ public class User {
         this.userId = userId;
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 
-    public User(String username, Long kakaoId, String email, String password,  UserRoleEnum role){
+    public User(String userId, String username, Long kakaoId, String email, String password,  UserRoleEnum role){
+        this.userId = userId;
         this.kakaoId = kakaoId;
         this.username = username;
         this.email = email;
