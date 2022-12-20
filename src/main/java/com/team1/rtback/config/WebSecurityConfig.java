@@ -75,7 +75,7 @@ public class WebSecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // 접근 가능한 출처
-        config.addAllowedOrigin("http://localhost:3030");
+        config.addAllowedOrigin("http://localhost:3000");
 
         // 클라이언트가 접근 가능한 헤더 지정 (토큰 사용 가능하게)
         config.addExposedHeader(JwtUtil.AUTHORIZATION_HEADER);

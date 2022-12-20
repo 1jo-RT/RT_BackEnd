@@ -11,6 +11,7 @@ import java.util.List;
 
 // 1. 기능    : 게시글 반환용 DTO
 // 2. 작성자  : 서혁수
+// 추가) 1. 기능 : 게시글 좋아요,  2. 작성자 : 박영준
 @Getter
 @NoArgsConstructor
 public class BoardResponseDto {
@@ -21,6 +22,8 @@ public class BoardResponseDto {
     private Long userIdx;                   // 게시글 작성자 고유번호
     private String username;                // 게시글 작성자 명
     private String content;                 // 게시글 내용
+    private int boardLikeCount;             // 게시글 좋아요
+    private boolean boardLikeCheck;         // 게시글 좋아요 여부 (true/false)
     private List<CommentResponseDto> commentList = new ArrayList<>();
     private Long commentLikeCount;
 
@@ -36,7 +39,7 @@ public class BoardResponseDto {
     }
 
     // 게시글 조회용 메서드
-    public BoardResponseDto(Board board, List<CommentResponseDto> commentList) {
+    public BoardResponseDto(Board board, List<CommentResponseDto> commentList, boolean boardLikeCheck) {
         this.createdAt = board.getCreatedAt();
         this.modifiedAt = board.getModifiedAt();
         this.id = board.getId();
@@ -46,5 +49,7 @@ public class BoardResponseDto {
         this.content = board.getContent();
         this.commentLikeCount = board.getBoardLikeCount();
         this.commentList = commentList;
+        this.boardLikeCount = board.getBoardLikeList().size();
+        this.boardLikeCheck = boardLikeCheck;
     }
 }
