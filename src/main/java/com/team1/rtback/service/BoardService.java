@@ -178,7 +178,7 @@ public class BoardService {
         // 3. 요청한 글의 모든 댓글 리스트 가져오기
         List<Comment> commentList = commentRepository.findAllByBoard_IdOrderByCreatedAtDesc(boardId);
 
-        // 4. 모든 댓글 삭제 후 글 삭제
+        // 4. 삭제 로직
         if (!board.getImgUrl().equals(""))
             s3Uploader.deleteFile(board.getImgUrl().substring(54));
 
