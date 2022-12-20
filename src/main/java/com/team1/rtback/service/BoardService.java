@@ -9,6 +9,7 @@ import com.team1.rtback.entity.Board;
 import com.team1.rtback.entity.BoardLike;
 import com.team1.rtback.entity.Comment;
 import com.team1.rtback.entity.User;
+import com.team1.rtback.exception.CustomException;
 import com.team1.rtback.repository.BoardLikeRepository;
 import com.team1.rtback.repository.BoardRepository;
 import com.team1.rtback.repository.CommentRepository;
@@ -22,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static com.team1.rtback.exception.ErrorCode.AUTHORIZATION;
+import static com.team1.rtback.exception.ErrorCode.NOT_FOUND_BOARD;
 
 // 1. 기능    : 게시글 서비스
 // 2. 작성자  : 서혁수
@@ -80,7 +85,7 @@ public class BoardService {
 
         // 1. 요청한 글 존재 여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new IllegalArgumentException("없는 글임")
+                () -> new CustomException(NOT_FOUND_BOARD)
         );
 
         // 2. 요청한 글의 댓글을 내림차순으로 가져온다.
@@ -116,14 +121,14 @@ public class BoardService {
 
         // 1. 요청한 글 존재 여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new IllegalArgumentException("없는 글임")
+                () -> new CustomException(NOT_FOUND_BOARD)
         );
 
         // 2. 글 작성자와 같은 계정인지 검증 후 수정
         if (user.getId() == board.getUser().getId()) {
             board.update(requestDto, user);
         } else
-            throw new IllegalArgumentException("계정 불일치");
+            throw new CustomException(AUTHORIZATION);
 
         return new BoardResponseDto(board, user.getId());
     }
@@ -133,17 +138,21 @@ public class BoardService {
 
         // 1. 요청한 글 존재 여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new IllegalArgumentException("없는 글임")
+                () -> new CustomException(NOT_FOUND_BOARD)
         );
 
         // 2. 삭제 권한 확인
         if (user.getId() != board.getUser().getId())
-            throw new IllegalArgumentException("님 글 아님");
+            throw new CustomException(AUTHORIZATION);
 
         // 3. 요청한 글의 모든 댓글 리스트 가져오기
         List<Comment> commentList = commentRepository.findAllByBoard_IdOrderByCreatedAtDesc(boardId);
 
-        // 4. 모든 댓글 삭제 후 글 삭제
+        // 4. 요청한 글의 모든 좋아요 리스트 가져오기
+        List<BoardLike> boardLikeList = boardLikeRepository.findAllByBoardId(boardId);
+
+        // 5. 모든 댓글 및 좋아요 삭제 후 글 삭제
+        boardLikeRepository.deleteAll(boardLikeList);
         commentRepository.deleteAll(commentList);
         boardRepository.delete(board);
 

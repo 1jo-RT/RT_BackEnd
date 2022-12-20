@@ -38,6 +38,9 @@ public class Board extends Timestamped {
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
     private List<BoardLike> boardLikeList = new ArrayList<>();          // 게시글 좋아요 (게시글 자신이 받을 좋아요의 개수를 알고 있어야함. 그래서 양방향 관계)
 
+    @Column
+    private Long boardLikeCount = 0L;
+
     // 게시글 작성 메서드
     public Board(BoardRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
@@ -53,5 +56,9 @@ public class Board extends Timestamped {
         this.content = requestDto.getContent();
         this.imgUrl = requestDto.getImgUrl();
         this.user = user;
+    }
+    
+    public void likeCount(Long boardLikeCount) {
+        this.boardLikeCount = boardLikeCount;
     }
 }

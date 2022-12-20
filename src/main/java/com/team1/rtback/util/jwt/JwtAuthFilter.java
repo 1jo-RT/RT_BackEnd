@@ -1,5 +1,6 @@
 package com.team1.rtback.util.jwt;
 
+import com.team1.rtback.exception.CustomException;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import static com.team1.rtback.exception.ErrorCode.INVALID_TOKEN;
 
 // 1. 기능   : JWT 인증 필터 / 토큰 유효성 검사
 // 2. 작성자 : 조소영
@@ -30,9 +32,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // 2. 토큰 유효 판별
         if(token != null) {
             if(!jwtUtil.validateToken(token)){
-                throw new IllegalMonitorStateException("유효하지 않은 토큰입니다.");
+                throw new CustomException(INVALID_TOKEN);
             }
-            // 3. 토큰이 유효하다면 토큰에서 정보를 가져와 Authentication에 세팅
+            // 3. 토큰이 유효하다면 토큰에서 정보를 가져와 Authentication 에 세팅
             Claims info = jwtUtil.getUserInfoFromToken(token);
             setAuthentication(info.getSubject());
         }
