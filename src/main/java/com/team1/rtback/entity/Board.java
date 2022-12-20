@@ -42,11 +42,11 @@ public class Board extends Timestamped {
     private Long boardLikeCount = 0L;
 
     // 게시글 작성 메서드
-    public Board(BoardRequestDto requestDto, User user) {
+    public Board(BoardRequestDto requestDto, User user, String imgUrl) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.username = user.getUsername();
-        this.imgUrl = requestDto.getImgUrl();
+        this.imgUrl = imgUrl;
         this.user = user;
     }
 
@@ -54,7 +54,13 @@ public class Board extends Timestamped {
     public void update(BoardRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        this.imgUrl = requestDto.getImgUrl();
+        this.user = user;
+    }
+
+    public void update(BoardRequestDto requestDto, User user, String imgUrl) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+        this.imgUrl = imgUrl;
         this.user = user;
     }
     
