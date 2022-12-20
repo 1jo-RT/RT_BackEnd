@@ -1,6 +1,8 @@
 package com.team1.rtback.controller;
 
 import com.team1.rtback.dto.board.BoardRequestDto;
+import com.team1.rtback.dto.board.BoardResponseDto;
+import com.team1.rtback.dto.global.MsgResponseDto;
 import com.team1.rtback.service.BoardService;
 import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +17,14 @@ import java.io.IOException;
 
 // 1. 기능    : 게시글 관련 종합 컨트롤러 (게시글 CRUD)
 // 2. 작성자  : 서혁수
+// 추가) 1. 기능 : 게시글 좋아요,  2. 작성자 : 박영준
 @RestController
 @RequestMapping("/api/boards")
 @RequiredArgsConstructor
 public class BoardController {
 
     private final BoardService boardService;
-
+    
     // 전체 글 조회
     @GetMapping
     public ResponseEntity<?> getAllBoard() {
@@ -58,11 +61,17 @@ public class BoardController {
         return new ResponseEntity<>(boardService.updateBoard(boardId, requestDto, multipartFile, userDetails.getUser()), HttpStatus.OK);
     }
 
-    // 글 삭제
-    @DeleteMapping("/delboard/{boardId}")
+    // 게시글 삭제
+    @DeleteMapping("/{boardId}")
     public ResponseEntity<?> deleteBoard(@PathVariable Long boardId,
                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return new ResponseEntity<>(boardService.deleteBoard(boardId, userDetails.getUser()), HttpStatus.OK);
     }
 
+    // 게시글 좋아요
+    @PostMapping("/{boardId}/like")
+    public ResponseEntity<?> boardLike(@PathVariable Long boardId,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new ResponseEntity<>(boardService.likeCount(boardId, userDetails.getUser()), HttpStatus.OK);
+    }
 }

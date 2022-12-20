@@ -4,9 +4,12 @@ import com.team1.rtback.dto.board.BoardRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 // 1. 기능    : 게시글 구성요소
 // 2. 작성자  : 서혁수
+// 추가) 1. 기능 : 게시글 좋아요,  2. 작성자 : 박영준
 @Entity
 @Getter
 @NoArgsConstructor
@@ -32,6 +35,12 @@ public class Board extends Timestamped {
     @Column
     private String imgUrl;                                  // 게시글 이미지 파일 정보
 
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
+    private List<BoardLike> boardLikeList = new ArrayList<>();          // 게시글 좋아요 (게시글 자신이 받을 좋아요의 개수를 알고 있어야함. 그래서 양방향 관계)
+
+    @Column
+    private Long boardLikeCount = 0L;
+
     // 게시글 작성 메서드
     public Board(BoardRequestDto requestDto, User user, String imgUrl) {
         this.title = requestDto.getTitle();
@@ -54,5 +63,8 @@ public class Board extends Timestamped {
         this.imgUrl = imgUrl;
         this.user = user;
     }
-
+    
+    public void likeCount(Long boardLikeCount) {
+        this.boardLikeCount = boardLikeCount;
+    }
 }
