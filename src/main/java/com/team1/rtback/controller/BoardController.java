@@ -1,7 +1,6 @@
 package com.team1.rtback.controller;
 
 import com.team1.rtback.dto.board.BoardRequestDto;
-import com.team1.rtback.dto.board.BoardResponseDto;
 import com.team1.rtback.service.BoardService;
 import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 // 1. 기능    : 게시글 관련 종합 컨트롤러 (게시글 CRUD)
 // 2. 작성자  : 서혁수
@@ -54,8 +52,8 @@ public class BoardController {
     // 글 수정
     @PutMapping("/newboard/{boardId}")
     public ResponseEntity<?> updateBoard(@PathVariable Long boardId,
-                                         @RequestPart("image") MultipartFile multipartFile,
                                          @RequestPart BoardRequestDto requestDto,
+                                         @RequestPart("image") MultipartFile multipartFile,
                                          @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return new ResponseEntity<>(boardService.updateBoard(boardId, requestDto, multipartFile, userDetails.getUser()), HttpStatus.OK);
     }
@@ -66,4 +64,5 @@ public class BoardController {
                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return new ResponseEntity<>(boardService.deleteBoard(boardId, userDetails.getUser()), HttpStatus.OK);
     }
+
 }

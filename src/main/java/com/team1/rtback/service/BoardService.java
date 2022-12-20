@@ -1,6 +1,5 @@
 package com.team1.rtback.service;
 
-import com.fasterxml.jackson.databind.node.LongNode;
 import com.team1.rtback.dto.board.BoardRequestDto;
 import com.team1.rtback.dto.board.BoardResponseDto;
 import com.team1.rtback.dto.comment.CommentResponseDto;
@@ -16,7 +15,6 @@ import com.team1.rtback.repository.UserRepository;
 import com.team1.rtback.util.S3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 // 1. 기능    : 게시글 서비스
@@ -46,14 +43,14 @@ public class BoardService {
     // 전체 글 읽기
     public List<BoardResponseDto> getAllBoard() {
 
-//        List<Board> boardList = boardRepository.findAll();
-//
-//        ArrayList<BoardResponseDto> result = new ArrayList<>();
-//
-//        for (Board board : boardList) {
-//
-//            result.add(new BoardResponseDto(board));
-//        }
+/*        List<Board> boardList = boardRepository.findAll();
+
+        ArrayList<BoardResponseDto> result = new ArrayList<>();
+
+        for (Board board : boardList) {
+
+            result.add(new BoardResponseDto(board));
+        }*/
         // 1. 모든 글 정보를 가지고 온다.
         // List<Board> boardList = boardRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         // 위처럼 내림차순 정렬의 다른 방법도 존재한다.
@@ -113,20 +110,23 @@ public class BoardService {
     @Transactional
     // 게시글 작성
     public BoardResponseDto createBoard(BoardRequestDto requestDto, MultipartFile multipartFile, User user) throws IOException {
+        // 1. 이미지 URL 을 담기 위한 빈 문자열
         String imgName;
 
+        // 2. 이미지 업로드 서비스 작동
         if (!multipartFile.isEmpty()) {
             imgName = s3Uploader.boardImgUpload(multipartFile);
         } else {
             imgName = "";
         }
 
+        // 3. 새로운 게시글 생성 및 DB 생성
         Board board = new Board(requestDto, user, imgName);
-
         // 세이브가 리턴을 해줌으로 인해서 boardResult 에서 게시글 번호를 가져올 수 있게 된다.
         // 여기서 말하는 리턴은 세이브가 저장해준 값을 리턴해준다고 한다.
         Board boardResult = boardRepository.save(board);
 
+        // 4. 새로운 게시글 이미지 생성 및 DB 생성
         BoardImage boardImage = new BoardImage(boardResult.getId(), user.getId(), imgName);
         boardImageRepository.save(boardImage);
 
@@ -142,6 +142,9 @@ public class BoardService {
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new IllegalArgumentException("없는 글임"));
 
+        BoardImage boardImage = boardImageRepository.findByBoardIdxAndUserIdx(board.getId(), user.getId()).orElseThrow(
+                () -> new IllegalArgumentException("없는 정보"));
+
         // 2. 글 작성자와 같은 계정인지 검증
         if (user.getId() != board.getUser().getId())
             throw new IllegalArgumentException("계정 불일치");
@@ -150,15 +153,12 @@ public class BoardService {
 //            imgName = s3Uploader.boardImgUpload(multipartFile);
 //            board.update(requestDto, user, imgName);
 //        }
-        imgName = board.getImgUrl();
+        // 3. 이미지 s3 수정 업로드 서비스 실행
+        imgName = s3Uploader.boardImgUpdate(multipartFile, boardId);
 
-        if (!board.getImgUrl().equals(imgName)) {
-            imgName = s3Uploader.boardImgUpload(multipartFile);
-        } else if (imgName.equals("")) {
-            imgName = "";
-        }
-
-        board = new Board(requestDto, user, imgName);
+        // 4. 게시글 및 이미지 테이블 업데이트
+        board.update(requestDto, user, imgName);
+        boardImage.update(imgName);
 
         return new BoardResponseDto(board, user.getId());
     }
@@ -179,8 +179,12 @@ public class BoardService {
         List<Comment> commentList = commentRepository.findAllByBoard_IdOrderByCreatedAtDesc(boardId);
 
         // 4. 모든 댓글 삭제 후 글 삭제
+        if (!board.getImgUrl().equals(""))
+            s3Uploader.deleteFile(board.getImgUrl().substring(54));
+
         commentRepository.deleteAll(commentList);
         boardRepository.delete(board);
+        boardImageRepository.deleteById(boardId);
 
         return new GlobalDto(200, "삭제 완료");
     }

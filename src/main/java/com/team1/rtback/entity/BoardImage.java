@@ -30,4 +30,8 @@ public class BoardImage {
         this.imgUrl = imgUrl;
     }
 
+    public void update(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
 }
