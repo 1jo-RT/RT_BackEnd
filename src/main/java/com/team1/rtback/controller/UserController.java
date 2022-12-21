@@ -37,15 +37,15 @@ public class UserController {
 
     // 폼 로그인
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
-        String createToken = userService.login(loginRequestDto, response);
+    public void login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
+        userService.login(loginRequestDto, response);
+//        String createToken = userService.login(loginRequestDto, response);
+//        System.out.println("================================== createToken = " + createToken);
+//        // Cookie 생성 및 직접 브라우저에 Set
+//        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
+//        cookie.setPath("/");
+//        response.addCookie(cookie);
 
-        // Cookie 생성 및 직접 브라우저에 Set
-        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        return "redirect:http://localhost:3000";
     }
 
     // 회원탈퇴
@@ -56,16 +56,9 @@ public class UserController {
 
     // 카카오 로그인
     @GetMapping("/kakao/callback")
-    public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+    public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드
         // 인가코드를 서비스로 전달
-        String createToken = kakaoService.kakaoLogin(code, response);
-
-        // Cookie 생성 및 직접 브라우저에 Set
-        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        return "redirect:http://localhost:3000";
+        kakaoService.kakaoLogin(code, response);
     }
 }

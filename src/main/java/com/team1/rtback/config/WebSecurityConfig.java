@@ -88,6 +88,7 @@ public class WebSecurityConfig {
 
         // 브라우저에서 인증 관련 정보들을 요청에 담을 수 있도록 허가
         config.setAllowCredentials(true);
+
         // allowedOrigin의 값이 * (즉, 모두 허용)이 설정될 수 없도록 검증
         config.validateAllowCredentials();
 
