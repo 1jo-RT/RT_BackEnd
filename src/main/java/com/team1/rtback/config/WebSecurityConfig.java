@@ -1,5 +1,6 @@
 package com.team1.rtback.config;
 
+import com.team1.rtback.exception.GlobalExceptionHandler;
 import com.team1.rtback.util.jwt.JwtAuthFilter;
 import com.team1.rtback.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;

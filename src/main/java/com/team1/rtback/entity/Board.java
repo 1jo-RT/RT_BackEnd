@@ -63,8 +63,5 @@ public class Board extends Timestamped {
         this.imgUrl = imgUrl;
         this.user = user;
     }
-    
-    public void likeCount(Long boardLikeCount) {
-        this.boardLikeCount = boardLikeCount;
-    }
+
 }

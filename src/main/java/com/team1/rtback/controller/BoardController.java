@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 // 1. 기능    : 게시글 관련 종합 컨트롤러 (게시글 CRUD)
@@ -24,17 +25,18 @@ import java.io.IOException;
 public class BoardController {
 
     private final BoardService boardService;
-    
+
     // 전체 글 조회
     @GetMapping
-    public ResponseEntity<?> getAllBoard() {
-        return new ResponseEntity<>(boardService.getAllBoard(), HttpStatus.OK);
+    public ResponseEntity<?> getAllBoard(HttpServletRequest request) {
+        return new ResponseEntity<>(boardService.getAllBoard(request), (HttpStatus.OK));
     }
 
     // 단건 글 조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<?> getBoard(@PathVariable Long boardId) {
-        return new ResponseEntity<>(boardService.getBoard(boardId), HttpStatus.OK);
+    public ResponseEntity<?> getBoard(@PathVariable Long boardId,
+                                      HttpServletRequest request) {
+        return new ResponseEntity<>(boardService.getBoard(boardId, request), HttpStatus.OK);
     }
 
 //    @PostMapping
@@ -62,7 +64,7 @@ public class BoardController {
     }
 
     // 게시글 삭제
-    @DeleteMapping("/{boardId}")
+    @DeleteMapping("/delboard/{boardId}")
     public ResponseEntity<?> deleteBoard(@PathVariable Long boardId,
                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return new ResponseEntity<>(boardService.deleteBoard(boardId, userDetails.getUser()), HttpStatus.OK);
@@ -72,6 +74,7 @@ public class BoardController {
     @PostMapping("/{boardId}/like")
     public ResponseEntity<?> boardLike(@PathVariable Long boardId,
                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return new ResponseEntity<>(boardService.likeCount(boardId, userDetails.getUser()), HttpStatus.OK);
+        return new ResponseEntity<>(boardService.createBoardLike(boardId, userDetails.getUser()), HttpStatus.OK);
     }
+
 }

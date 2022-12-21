@@ -5,8 +5,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.team1.rtback.entity.Board;
-import com.team1.rtback.entity.BoardImage;
-import com.team1.rtback.entity.User;
 import com.team1.rtback.repository.BoardImageRepository;
 import com.team1.rtback.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,6 @@ public class S3Uploader {
 
     private final AmazonS3Client amazonS3Client;
     private final BoardRepository boardRepository;
-    private final BoardImageRepository boardImageRepository;
 
     @Value("${region}")
     public String bucket;

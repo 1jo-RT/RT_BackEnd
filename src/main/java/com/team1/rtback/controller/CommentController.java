@@ -19,7 +19,7 @@ public class CommentController {
     private final CommentService commentService;
 
     // 댓글 작성
-    @PostMapping
+    @PostMapping("/newcomment")
     public ResponseEntity<MsgResponseDto> createComment(@PathVariable Long boardId,
                                                         @RequestBody CommentRequestDto commentRequestDto,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -28,7 +28,7 @@ public class CommentController {
     }
 
     // 댓글 수정
-    @PutMapping("/{commentId}")
+    @PutMapping("/newcomment/{commentId}")
     public ResponseEntity<MsgResponseDto> updateComment(@PathVariable Long boardId,
                                                         @PathVariable Long commentId,
                                                         @RequestBody CommentRequestDto commentRequestDto,
@@ -38,7 +38,7 @@ public class CommentController {
     }
 
     // 댓글 삭제
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/delcomment/{commentId}")
     public ResponseEntity<MsgResponseDto> deleteComment(@PathVariable Long boardId,
                                                         @PathVariable Long commentId,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {

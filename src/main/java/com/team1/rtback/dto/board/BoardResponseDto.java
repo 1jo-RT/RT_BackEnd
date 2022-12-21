@@ -2,6 +2,7 @@ package com.team1.rtback.dto.board;
 
 import com.team1.rtback.dto.comment.CommentResponseDto;
 import com.team1.rtback.entity.Board;
+import com.team1.rtback.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,10 +23,10 @@ public class BoardResponseDto {
     private Long userIdx;                   // 게시글 작성자 고유번호
     private String username;                // 게시글 작성자 명
     private String content;                 // 게시글 내용
-    private int boardLikeCount;             // 게시글 좋아요
+    private Long boardLikeCount;             // 게시글 좋아요
     private boolean boardLikeCheck;         // 게시글 좋아요 여부 (true/false)
     private List<CommentResponseDto> commentList = new ArrayList<>();
-    private Long commentLikeCount;
+
 
     // 게시글 작성용 메서드
     public BoardResponseDto(Board board, Long userId) {
@@ -47,9 +48,21 @@ public class BoardResponseDto {
         this.userIdx = board.getUser().getId();
         this.username = board.getUsername();
         this.content = board.getContent();
-        this.commentLikeCount = board.getBoardLikeCount();
         this.commentList = commentList;
-        this.boardLikeCount = board.getBoardLikeList().size();
+        this.boardLikeCount = (long) board.getBoardLikeList().size();
+        this.boardLikeCheck = boardLikeCheck;
+    }
+
+    public BoardResponseDto(BoardResponseDto boardResponseDto, List<CommentResponseDto> commentList, boolean boardLikeCheck) {
+        this.createdAt = boardResponseDto.getCreatedAt();
+        this.modifiedAt = boardResponseDto.getModifiedAt();
+        this.id = boardResponseDto.getId();
+        this.title = boardResponseDto.getTitle();
+        this.userIdx = boardResponseDto.getUserIdx();
+        this.username = boardResponseDto.getUsername();
+        this.content = boardResponseDto.getContent();
+        this.commentList = commentList;
+        this.boardLikeCount = boardResponseDto.getBoardLikeCount();
         this.boardLikeCheck = boardLikeCheck;
     }
 }
