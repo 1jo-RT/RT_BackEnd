@@ -37,7 +37,7 @@ public class KakaoService {
 
 
     // kakao 로그인해 사용자 정보 가져오기
-    public String kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public KakaoResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. 인가 코드에서 액세스 토큰 얻기
         String accessToken = getToken(code);
 
@@ -48,11 +48,9 @@ public class KakaoService {
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
         // 4. JWT 토큰 헤더로 반환
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority()));
-//
-//        return new KakaoResponseDto(GlobalEnum.LOGIN_OK);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority()));
 
-        return jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority());
+        return new KakaoResponseDto(GlobalEnum.LOGIN_OK);
     }
 
     // "인가 코드"로 "액세스 토큰" 요청
@@ -65,7 +63,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "1bb390131e75b06d3bacd5562df5b3ac");
-        body.add("redirect_uri", "http://13.209.84.31:8080/api/user/kakao/callback");
+        body.add("redirect_uri", "http://localhost:3000/api/user/kakao/callback");
         body.add("code", code);
 
         // HTTP Entity에 생성한 헤더와 바디 Set

@@ -3,7 +3,6 @@ package com.team1.rtback.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.team1.rtback.dto.global.GlobalDto;
 import com.team1.rtback.dto.global.GlobalEnum;
-import com.team1.rtback.dto.global.GlobalDto;
 import com.team1.rtback.dto.user.LoginRequestDto;
 import com.team1.rtback.dto.user.SignUpRequestDto;
 import com.team1.rtback.service.KakaoService;
@@ -12,8 +11,10 @@ import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -57,11 +58,10 @@ public class UserController {
 
     // 카카오 로그인
     @GetMapping("/kakao/callback")
-    public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<?> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드
         // 인가코드를 서비스로 전달
-        String createToken = kakaoService.kakaoLogin(code, response);
-//        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.LOGIN_OK));
-        return "redirect:https://localhost:3000/token="+ createToken;
+        kakaoService.kakaoLogin(code, response);
+        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.LOGIN_OK));
     }
 }
