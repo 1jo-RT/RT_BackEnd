@@ -1,13 +1,13 @@
 package com.team1.rtback.service;
 
+import com.team1.rtback.dto.global.GlobalDto;
 import com.team1.rtback.dto.user.*;
+import com.team1.rtback.entity.Board;
 import com.team1.rtback.entity.User;
 import com.team1.rtback.entity.UserRoleEnum;
-import com.team1.rtback.repository.BoardLikeRepository;
-import com.team1.rtback.repository.BoardRepository;
-import com.team1.rtback.repository.CommentRepository;
+import com.team1.rtback.repository.*;
 import com.team1.rtback.exception.CustomException;
-import com.team1.rtback.repository.UserRepository;
+import com.team1.rtback.util.S3.S3Uploader;
 import com.team1.rtback.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 
 
-import static com.team1.rtback.dto.global.SuccessCode.JOIN_OK;
-import static com.team1.rtback.dto.global.SuccessCode.LOGIN_OK;
+import java.util.List;
+
 import static com.team1.rtback.exception.ErrorCode.*;
 
 // 1. 기능   : 유저 서비스
@@ -31,11 +31,13 @@ public class UserService {
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
     private final CommentRepository commentRepository;
+    private final BoardImageRepository boardImageRepository;
+    private final S3Uploader s3Uploader;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     // 회원 가입
-    public SignUpResponseDto signup (SignUpRequestDto signUpRequestDto){
+    public void signup (SignUpRequestDto signUpRequestDto){
         // 1. 중복 여부 검사
         if(userRepository.existsByUserId(signUpRequestDto.getUserId())){
             throw new CustomException(DUPLICATED_USERID);
@@ -47,11 +49,10 @@ public class UserService {
         User user = new User(signUpRequestDto.getUserId(), signUpRequestDto.getUsername(), encodePassword, UserRoleEnum.USER);
         userRepository.save(user);
 
-        return new SignUpResponseDto(JOIN_OK);
     }
 
     // 폼 로그인
-    public LoginResponseDto login (LoginRequestDto loginRequestDto, HttpServletResponse response){
+    public void login (LoginRequestDto loginRequestDto, HttpServletResponse response){
         String userId = loginRequestDto.getUserId();
         String password = loginRequestDto.getPassword();
 
@@ -65,15 +66,21 @@ public class UserService {
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUserId(), user.getUsername(), UserRoleEnum.USER.getAuthority()));
 
-        return new LoginResponseDto(LOGIN_OK);
     }
 
     @Transactional
-    public DeleteUserResponseDto deleteUser(User user){
-
+    public void deleteUser(User user){
+        // 유져 정보와 관련된 모든 이미지 s3 저장소에서 삭제
+        List<Board> boardList = boardRepository.findAllById(user.getId());
+        for (Board find : boardList) {
+            if (!find.getImgUrl().equals(""))
+                s3Uploader.deleteFile(find.getImgUrl().substring(54));
+        }
+        // 유저 정보와 관련된 모든 DB 삭제하기
+        boardImageRepository.deleteAllByUserIdx(user.getId());
+        commentRepository.deleteAllByUser(user);
         boardLikeRepository.deleteAllByUser(user);
         boardRepository.deleteAllByUser(user);
         userRepository.delete(user);
-        return new DeleteUserResponseDto();
     }
 }

@@ -1,8 +1,6 @@
 package com.team1.rtback.controller;
 
 import com.team1.rtback.dto.board.BoardRequestDto;
-import com.team1.rtback.dto.board.BoardResponseDto;
-import com.team1.rtback.dto.global.MsgResponseDto;
 import com.team1.rtback.service.BoardService;
 import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -60,14 +58,14 @@ public class BoardController {
     @DeleteMapping("/delboard/{boardId}")
     public ResponseEntity<?> deleteBoard(@PathVariable Long boardId,
                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return new ResponseEntity<>(boardService.deleteBoard(boardId, userDetails.getUser()), HttpStatus.OK);
+        return boardService.deleteBoard(boardId, userDetails.getUser());
     }
 
     // 게시글 좋아요
     @PostMapping("/{boardId}/like")
     public ResponseEntity<?> boardLike(@PathVariable Long boardId,
                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return new ResponseEntity<>(boardService.createBoardLike(boardId, userDetails.getUser()), HttpStatus.OK);
+        return boardService.createBoardLike(boardId, userDetails.getUser());
     }
 
 }

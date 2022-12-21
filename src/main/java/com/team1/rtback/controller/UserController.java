@@ -1,20 +1,19 @@
 package com.team1.rtback.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.team1.rtback.dto.global.GlobalDto;
+import com.team1.rtback.dto.global.GlobalEnum;
+import com.team1.rtback.dto.global.GlobalDto;
 import com.team1.rtback.dto.user.LoginRequestDto;
 import com.team1.rtback.dto.user.SignUpRequestDto;
 import com.team1.rtback.service.KakaoService;
 import com.team1.rtback.service.UserService;
-import com.team1.rtback.util.jwt.JwtUtil;
 import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -32,7 +31,8 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> signup(
             @RequestBody @Valid SignUpRequestDto signUpRequestDto){
-        return new ResponseEntity<>(userService.signup(signUpRequestDto), HttpStatus.OK);
+        userService.signup(signUpRequestDto);
+        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.JOIN_OK));
     }
 
     // 폼 로그인
@@ -45,13 +45,14 @@ public class UserController {
 //        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
 //        cookie.setPath("/");
 //        response.addCookie(cookie);
-
+        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.LOGIN_OK));
     }
 
     // 회원탈퇴
     @DeleteMapping("/delete")
-    public ResponseEntity<?> delete (@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return new ResponseEntity<>(userService.deleteUser(userDetails.getUser()), HttpStatus.OK);
+    public ResponseEntity<?> delete (@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.deleteUser(userDetails.getUser());
+        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.USER_DELETE_OK));
     }
 
     // 카카오 로그인

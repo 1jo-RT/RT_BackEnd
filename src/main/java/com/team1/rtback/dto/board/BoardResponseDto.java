@@ -22,7 +22,8 @@ public class BoardResponseDto {
     private Long userIdx;                   // 게시글 작성자 고유번호
     private String username;                // 게시글 작성자 명
     private String content;                 // 게시글 내용
-    private Long boardLikeCount;             // 게시글 좋아요
+    private String imgUrl;                  // 게시글 첨부 이미지
+    private Long boardLikeCount;            // 게시글 좋아요
     private boolean boardLikeCheck;         // 게시글 좋아요 여부 (true/false)
     private List<CommentResponseDto> commentList = new ArrayList<>();
 
@@ -36,6 +37,7 @@ public class BoardResponseDto {
         this.userIdx = userId;
         this.username = board.getUsername();
         this.content = board.getContent();
+        this.imgUrl = board.getImgUrl();
     }
 
     // 게시글 조회용 메서드 1
@@ -47,6 +49,7 @@ public class BoardResponseDto {
         this.userIdx = board.getUser().getId();
         this.username = board.getUsername();
         this.content = board.getContent();
+        this.imgUrl = board.getImgUrl();
         this.commentList = commentList;
         this.boardLikeCount = (long) board.getBoardLikeList().size();
         this.boardLikeCheck = boardLikeCheck;
@@ -61,6 +64,7 @@ public class BoardResponseDto {
         this.userIdx = boardResponseDto.getUserIdx();
         this.username = boardResponseDto.getUsername();
         this.content = boardResponseDto.getContent();
+        this.imgUrl = boardResponseDto.getImgUrl();;
         this.commentList = commentList;
         this.boardLikeCount = boardResponseDto.getBoardLikeCount();
         this.boardLikeCheck = boardLikeCheck;

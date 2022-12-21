@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-// 1. 기능 : Spring Security 설정
+// 1. 기능   : 유저 정보 구성요소
 // 2. 작성자 : 조소영
 @Entity
 @Table(name="USERS")
@@ -20,7 +20,7 @@ public class User {
     private String userId;                              // 유저 아이디
 
     @Column
-    private Long kakaoId;
+    private Long kakaoId;                               //
 
     @Column(nullable = false, unique = true)
     private String username;                            // 유저 닉네임
@@ -29,11 +29,11 @@ public class User {
     private String password;                            // 유저 비밀번호
 
     @Column
-    private String email;
+    private String email;                               // 유저 이메일
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private UserRoleEnum role;
+    private UserRoleEnum role;                          // 유저 권한 정보
 
     // 유저 생성 메서드
     public User(String userId, String username, String password,  UserRoleEnum role){

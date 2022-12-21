@@ -3,7 +3,7 @@ package com.team1.rtback.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team1.rtback.dto.global.SuccessCode;
+import com.team1.rtback.dto.global.GlobalEnum;
 import com.team1.rtback.dto.user.KakaoResponseDto;
 import com.team1.rtback.dto.user.KakaoUserInfoDto;
 import com.team1.rtback.entity.User;
@@ -25,6 +25,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
+// 1. 기능    : 카카오 서비스
+// 2. 작성자  : 조소영
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -48,7 +50,7 @@ public class KakaoService {
         // 4. JWT 토큰 헤더로 반환
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority()));
 
-        return new KakaoResponseDto(SuccessCode.LOGIN_OK);
+        return new KakaoResponseDto(GlobalEnum.LOGIN_OK);
     }
 
     // "인가 코드"로 "액세스 토큰" 요청

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// 1. 기능   : AWS s3 설정
+// 2. 작성자 : 서혁수
 @Configuration
 public class AWSConfig {
 

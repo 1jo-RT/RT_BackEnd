@@ -27,11 +27,11 @@ public class Timestamped {
     // 생성일자
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt;                    // 작성 날자
 
     // 마지막 수정일자
     @LastModifiedDate
     @Column
-    private LocalDateTime modifiedAt;
+    private LocalDateTime modifiedAt;                   // 수정 날자
 }
 
