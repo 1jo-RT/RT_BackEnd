@@ -51,7 +51,7 @@ public class UserService {
     }
 
     // 폼 로그인
-    public LoginResponseDto login (LoginRequestDto loginRequestDto, HttpServletResponse response){
+    public String login (LoginRequestDto loginRequestDto, HttpServletResponse response){
         String userId = loginRequestDto.getUserId();
         String password = loginRequestDto.getPassword();
 
@@ -63,9 +63,10 @@ public class UserService {
             throw new CustomException(NOT_MATCH_PASSWORD);
         }
 
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUserId(), user.getUsername(), UserRoleEnum.USER.getAuthority()));
-
-        return new LoginResponseDto(LOGIN_OK);
+//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUserId(), user.getUsername(), UserRoleEnum.USER.getAuthority()));
+//
+//        return new LoginResponseDto(LOGIN_OK);
+        return jwtUtil.createToken(user.getUserId(), user.getUsername(), UserRoleEnum.USER.getAuthority());
     }
 
     @Transactional

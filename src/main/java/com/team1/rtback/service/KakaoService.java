@@ -35,7 +35,7 @@ public class KakaoService {
 
 
     // kakao 로그인해 사용자 정보 가져오기
-    public KakaoResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public String kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. 인가 코드에서 액세스 토큰 얻기
         String accessToken = getToken(code);
 
@@ -46,9 +46,10 @@ public class KakaoService {
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
         // 4. JWT 토큰 헤더로 반환
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority()));
-
-        return new KakaoResponseDto(SuccessCode.LOGIN_OK);
+//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority()));
+//
+//        return new KakaoResponseDto(SuccessCode.LOGIN_OK);
+        return jwtUtil.createToken(kakaoUser.getUserId(), kakaoUser.getUsername(), UserRoleEnum.USER.getAuthority());
     }
 
     // "인가 코드"로 "액세스 토큰" 요청
