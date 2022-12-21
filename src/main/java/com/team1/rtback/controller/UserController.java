@@ -9,10 +9,9 @@ import com.team1.rtback.service.KakaoService;
 import com.team1.rtback.service.UserService;
 import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,7 +62,9 @@ public class UserController {
     @PutMapping("/thumb")
     public ResponseEntity<?> thumbNailUpload(@RequestPart("image") MultipartFile multipartFile,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        System.out.println("================================== 1");
         userService.thumbNailUpload(multipartFile, userDetails.getUser());
+        System.out.println("================================== 5");
         return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.THUMBNAIL_UPLOAD_OK));
     }
 

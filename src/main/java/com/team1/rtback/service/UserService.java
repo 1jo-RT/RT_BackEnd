@@ -74,11 +74,13 @@ public class UserService {
     // 유저 프로필 이미지 등록
     public void thumbNailUpload(MultipartFile multipartFile, User user) throws IOException {
         String thumbNail;
-
+        System.out.println("================================== 2");
         thumbNail = s3Uploader.thumbNailUpload(multipartFile, user);
-
+        System.out.println("================================== 3");
         user.updateThumb(thumbNail);
+        System.out.println("================================== 4");
         userRepository.save(user);
+        System.out.println("================================== 5");
     }
 
 
