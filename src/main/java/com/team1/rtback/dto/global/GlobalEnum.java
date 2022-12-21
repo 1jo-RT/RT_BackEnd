@@ -13,6 +13,7 @@ public enum GlobalEnum {
 
     JOIN_OK(HttpStatus.OK, "회원가입 성공"),
     LOGIN_OK(HttpStatus.OK, "로그인 성공"),
+    THUMBNAIL_UPLOAD_OK(HttpStatus.OK, "프로필 이미지 업로드 완료"),
     USER_DELETE_OK(HttpStatus.OK, "탈퇴 완료"),
     COMMENT_NEW_OK(HttpStatus.OK, "댓글 작성 완료"),
     COMMENT_MODIFIED_OK(HttpStatus.OK, "댓글 수정 완료"),

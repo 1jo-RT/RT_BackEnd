@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.team1.rtback.entity.Board;
-import com.team1.rtback.repository.BoardImageRepository;
+import com.team1.rtback.entity.User;
 import com.team1.rtback.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +34,26 @@ public class S3Uploader {
     @Value("${aws.url}")
     public String awsUrl;
 
+    @Transactional
+    public String thumbNailUpload(MultipartFile multipartFile, User user) throws IOException {
+        // 프로필 이미지 변경이 없었을 경우 게시글 안의 기존 이미지를 리턴
+        if (multipartFile.isEmpty()) {
+            return user.getThumbNail();
+            // 프로필 이미지가 빈값이거나 null 값이면 새로운 이미지를 업로드
+        } else if (user.getThumbNail().equals("") || user.getThumbNail() == null) {
+            return ImgUpload(multipartFile, "user");
+        } else {
+            // 그 외의 경우엔 기존의 파일 삭제 후 새롭게 업로드 즉, 교체
+            String filename = user.getThumbNail().substring(54);
+            deleteFile(filename);
+            return ImgUpload(multipartFile, "user");
+        }
+    }
 
     @Transactional
     public String boardImgUpload(MultipartFile multipartFile) throws IOException {
         // S3 Bucket 내부에 "static"이라는 이름의 디렉토리가 생성이 된다.
-        return ImgUpload(multipartFile, "static");
+        return ImgUpload(multipartFile, "board");
     }
 
     @Transactional
@@ -51,11 +66,11 @@ public class S3Uploader {
             return board.getImgUrl();
         } else {
             // 변경의 요청이 있을 경우 기존 이미지를 s3 저장공간에서 삭제 한다.
-            if (!board.getImgUrl().equals("")) {
+            if (!board.getImgUrl().equals("") || board.getImgUrl() == null) {
                 String filename = board.getImgUrl().substring(54);
                 deleteFile(filename);
             }
-            return ImgUpload(multipartFile, "static");
+            return ImgUpload(multipartFile, "board");
         }
 
     }
