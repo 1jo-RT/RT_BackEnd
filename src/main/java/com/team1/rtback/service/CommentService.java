@@ -25,7 +25,7 @@ public class CommentService {
 
     // 댓글 작성
     @Transactional
-    public CommentResponseDto createComment(Long id, CommentRequestDto commentRequestDto, User user) {
+    public void createComment(Long id, CommentRequestDto commentRequestDto, User user) {
 
         // 1. 요청한 게시글 존재여부 확인
         Board board = boardRepository.findById(id).orElseThrow(
@@ -35,28 +35,18 @@ public class CommentService {
         // 2. 게시글에 댓글 작성
         Comment comment = commentRepository.save(new Comment(commentRequestDto, board, user));
 
-        return new CommentResponseDto(comment);
+        new CommentResponseDto(comment);
     }
 
     // 댓글 수정
     @Transactional
-    public CommentResponseDto updateComment(Long boardId, Long cmtId, CommentRequestDto commentRequestDto, User user) {
+    public void updateComment(Long boardId, Long cmtId, CommentRequestDto commentRequestDto, User user) {
 
         // 1. 요청한 게시글 존재여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow (
                 () -> new CustomException(NOT_FOUND_BOARD)
         );
 
-//        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
-//            comment = commentRepository.findById(cmtId).orElseThrow(
-//                    () -> new IllegalArgumentException("없는 댓글")
-//            );
-//
-//        } else {
-//            comment = commentRepository.findByIdAndUserId(cmtId, user.getId()).orElseThrow(
-//                    () -> new IllegalArgumentException("계정 불일치")
-//            );
-//        }
         // 2. 댓글 수정 권한 검증
         Comment comment;
         comment = commentRepository.findByIdAndUserId(cmtId, user.getId()).orElseThrow(
@@ -66,27 +56,18 @@ public class CommentService {
         // 3. 해당 댓글 수정
         comment.update(commentRequestDto);
 
-        return new CommentResponseDto(comment);
+        new CommentResponseDto(comment);
     }
 
     // 댓글 삭제
     @Transactional
-    public CommentResponseDto deleteComment(Long boardId, Long cmtId, User user) {
+    public void deleteComment(Long boardId, Long cmtId, User user) {
 
         // 1. 요청한 게시글 존재여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow (
                 () -> new CustomException(NOT_FOUND_BOARD)
         );
 
-//        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
-//            comment = commentRepository.findById(cmtId).orElseThrow(
-//                    () -> new IllegalArgumentException("없는 댓글")
-//            );
-//        } else {
-//            comment = commentRepository.findByIdAndUserId(cmtId, user.getId()).orElseThrow(
-//                    () -> new IllegalArgumentException("계정 불일치")
-//            );
-//        }
         // 2. 댓글 삭제 권한 검증
         Comment comment;
         comment = commentRepository.findByIdAndUserId(cmtId, user.getId()).orElseThrow(
@@ -96,6 +77,6 @@ public class CommentService {
         // 3. 해당 댓글 삭제
         commentRepository.deleteById(cmtId);
 
-        return new CommentResponseDto(comment);
+        new CommentResponseDto(comment);
     }
 }

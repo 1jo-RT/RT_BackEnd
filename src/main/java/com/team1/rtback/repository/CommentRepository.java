@@ -1,6 +1,8 @@
 package com.team1.rtback.repository;
 
+import com.team1.rtback.entity.Board;
 import com.team1.rtback.entity.Comment;
+import com.team1.rtback.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,5 +19,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 모든 댓글 내림차순 조회
     List<Comment> findAllByBoard_IdOrderByCreatedAtDesc(Long boardId);
+
+    List<Comment> deleteAllByUser(User user);
 
 }

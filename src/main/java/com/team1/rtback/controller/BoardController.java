@@ -39,13 +39,6 @@ public class BoardController {
         return new ResponseEntity<>(boardService.getBoard(boardId, request), HttpStatus.OK);
     }
 
-//    @PostMapping
-//    public ResponseEntity<?> createBoard(@RequestBody BoardRequestDto requestDto,
-//                                         @RequestParam("image") MultipartFile multipartFile,
-//                                         @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-//        return new ResponseEntity<>(boardService.createBoard(requestDto, multipartFile, userDetails.getUser()), HttpStatus.OK);
-//    }
-
     // 새 글 작성
     @PostMapping(value = "/newboard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> createBoard(@RequestPart BoardRequestDto requestDto,

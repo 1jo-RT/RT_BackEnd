@@ -56,8 +56,8 @@ public class BoardService {
     private final JwtUtil jwtUtil;
 
 
-    // 기본 모든 게시글 가져오기
-    public List<BoardResponseDto> getBoardList() {
+    // 모든 게시글 가져오기 (비로그인)
+    public List<BoardResponseDto> getBoardListAll() {
         // 1. 모든 글 정보를 가지고 온다.
         // List<Board> boardList = boardRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         // 위처럼 내림차순 정렬의 다른 방법도 존재한다.
@@ -83,12 +83,39 @@ public class BoardService {
         return result;
     }
 
-    // 로그인 한 유저의 전체 글 읽기
+    // 단건 게시글 가져오기 (비로그인)
+    public List<BoardResponseDto> getBoardList(Long boardId) {
+        List<BoardResponseDto> result = new ArrayList<>();
+
+        // 1. 요청한 글 존재 여부 확인
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(NOT_FOUND_BOARD));
+
+        // 2. 요청한 글의 댓글을 내림차순으로 가져온다.
+        List<Comment> comments = commentRepository.findAllByBoard_IdOrderByCreatedAtDesc(boardId);
+
+        // 3. 글과 댓글을 담기 위한 배열 선언
+        List<CommentResponseDto> commentList = new ArrayList<>();
+
+        // 4. 댓글 갯수가 0개 이상일 때 부터 댓글 리스트에 넣어준다.
+        if (comments.size() > 0) {
+            for (Comment comment : comments) {
+                commentList.add(new CommentResponseDto(comment));
+            }
+        }
+
+        // 5. 리스트로 반환하기 위해서 result 넣어준다.
+        result.add(new BoardResponseDto(board, commentList, false));
+
+        return result;
+    }
+
+    // 전체 게시글 가져오기 (로그인)
     public List<BoardResponseDto> getAllBoard(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
         Claims claims;
 
-        List<BoardResponseDto> boardList = getBoardList();
+        List<BoardResponseDto> boardList = getBoardListAll();
         List<BoardResponseDto> result = new ArrayList<>();
 
         if (token != null) {
@@ -98,7 +125,7 @@ public class BoardService {
                 throw new IllegalStateException("Token Error");
             }
 
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+            User user = userRepository.findByUserId((String) claims.get("userId")).orElseThrow(
                     () -> new IllegalArgumentException("유저가 읎다")
             );
 
@@ -112,10 +139,13 @@ public class BoardService {
         return result;
     }
 
-    // 게시글 읽기
+    // 단건 게시글 가져오기 (로그인)
     public List<BoardResponseDto> getBoard(Long boardId, HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
         Claims claims;
+
+        List<BoardResponseDto> boardList = getBoardList(boardId);
+        List<BoardResponseDto> result = new ArrayList<>();
 
         if (token != null) {
             if (jwtUtil.validateToken(token)) {
@@ -124,28 +154,18 @@ public class BoardService {
                 throw new IllegalArgumentException("Token Error");
             }
 
-            // 1. 요청한 글 존재 여부 확인
-            Board board = boardRepository.findById(boardId).orElseThrow(
-                    () -> new CustomException(NOT_FOUND_BOARD));
+            User user = userRepository.findByUserId((String) claims.get("userId")).orElseThrow(
+                    () -> new IllegalArgumentException("유저가 읎다")
+            );
+            // boolean check = boardList.get((int) boardId.longValue()).isBoardLikeCheck();
+            // int num = Math.toIntExact(boardId);
+            BoardResponseDto boardResponseDto = boardList.get(0);
+            boolean check = checkBoardLike(boardResponseDto.getId(), user.getId());
 
-            // 2. 요청한 글의 댓글을 내림차순으로 가져온다.
-            List<Comment> comments = commentRepository.findAllByBoard_IdOrderByCreatedAtDesc(boardId);
-
-            // 3. 글과 댓글을 담기 위한 배열 선언
-            List<BoardResponseDto> result = new ArrayList<>();
-            List<CommentResponseDto> commentList = new ArrayList<>();
-
-            // 4. 댓글 갯수가 0개 이상일 때 부터 댓글 리스트에 넣어준다.
-            if (comments.size() > 0) {
-                for (Comment comment : comments) {
-                    commentList.add(new CommentResponseDto(comment));
-                }
-            }
-
-            // 5. 리스트로 반환하기 위해서 result 넣어준다.
-            result.add(new BoardResponseDto(board, commentList, checkBoardLike(board.getId(), user.getId())));
+            result.add(new BoardResponseDto(boardResponseDto, boardResponseDto.getCommentList(), check));
+        } else {
+            return boardList;
         }
-
         return result;
     }
 
@@ -180,28 +200,25 @@ public class BoardService {
     public BoardResponseDto updateBoard(Long boardId, BoardRequestDto requestDto, MultipartFile multipartFile, User user) throws IOException {
         String imgName;
 
-        // 1. 요청한 글 존재 여부 확인
+        // 1. 요청한 글 존재 여부 확인 및 가져오기
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_BOARD)
         );
 
+        // 2. 요청한 이미지 테이블 존재 확인 및 가져오기
         BoardImage boardImage = boardImageRepository.findByBoardIdxAndUserIdx(board.getId(), user.getId()).orElseThrow(
                 () -> new IllegalArgumentException("없는 정보"));
 
-        // 2. 글 작성자와 같은 계정인지 검증 후 수정
-        if (user.getId() == board.getUser().getId()) {
+        // 3. 글 작성자와 같은 계정인지 검증 후 수정
+        if (user.getId().equals(board.getUser().getId())) {
             board.update(requestDto, user);
         } else
             throw new CustomException(AUTHORIZATION);
 
-//        if (!board.getImgUrl().equals("")) {
-//            imgName = s3Uploader.boardImgUpload(multipartFile);
-//            board.update(requestDto, user, imgName);
-//        }
-        // 3. 이미지 s3 수정 업로드 서비스 실행
+        // 4. 이미지 s3 수정 업로드 서비스 실행
         imgName = s3Uploader.boardImgUpdate(multipartFile, boardId);
 
-        // 4. 게시글 및 이미지 테이블 업데이트
+        // 5. 게시글 및 이미지 테이블 수정하기
         board.update(requestDto, user, imgName);
         boardImage.update(imgName);
 
@@ -217,7 +234,7 @@ public class BoardService {
         );
 
         // 2. 삭제 권한 확인
-        if (user.getId() != board.getUser().getId())
+        if (!user.getId().equals(board.getUser().getId()))
             throw new CustomException(AUTHORIZATION);
 
         // 3. 요청한 글의 모든 댓글 리스트 가져오기

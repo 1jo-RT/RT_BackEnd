@@ -14,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static com.amazonaws.services.ec2.model.PrincipalType.User;
 import static com.team1.rtback.exception.ErrorCode.INVALID_TOKEN;
 
 // 1. 기능   : JWT 인증 필터 / 토큰 유효성 검사
@@ -35,7 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             // 3. 토큰이 유효하다면 토큰에서 정보를 가져와 Authentication 에 세팅
             Claims info = jwtUtil.getUserInfoFromToken(token);
-            setAuthentication(info.getSubject());
+            setAuthentication((String)info.get("userId"));
         }
         // 4. 다음 필터로 넘어간다
         filterChain.doFilter(request, response);

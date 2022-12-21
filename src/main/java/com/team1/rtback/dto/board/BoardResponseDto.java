@@ -2,7 +2,6 @@ package com.team1.rtback.dto.board;
 
 import com.team1.rtback.dto.comment.CommentResponseDto;
 import com.team1.rtback.entity.Board;
-import com.team1.rtback.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,7 +38,7 @@ public class BoardResponseDto {
         this.content = board.getContent();
     }
 
-    // 게시글 조회용 메서드
+    // 게시글 조회용 메서드 1
     public BoardResponseDto(Board board, List<CommentResponseDto> commentList, boolean boardLikeCheck) {
         this.createdAt = board.getCreatedAt();
         this.modifiedAt = board.getModifiedAt();
@@ -53,6 +52,7 @@ public class BoardResponseDto {
         this.boardLikeCheck = boardLikeCheck;
     }
 
+    // 게시글 조회용 메서드 2
     public BoardResponseDto(BoardResponseDto boardResponseDto, List<CommentResponseDto> commentList, boolean boardLikeCheck) {
         this.createdAt = boardResponseDto.getCreatedAt();
         this.modifiedAt = boardResponseDto.getModifiedAt();
@@ -65,4 +65,5 @@ public class BoardResponseDto {
         this.boardLikeCount = boardResponseDto.getBoardLikeCount();
         this.boardLikeCheck = boardLikeCheck;
     }
+
 }
