@@ -19,10 +19,8 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
-// 1. 기능 : JWT 로직
+// 1. 기능   : JWT 로직
 // 2. 작성자 : 조소영
-// 3. 생성날자 : 2022-12-16
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -55,11 +53,12 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String username){
+    public String createToken(String userId, String username, String role){
         Date date = new Date();
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(username)
+                        .claim("userId" , userId)
+                        .claim( "username" , username)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)

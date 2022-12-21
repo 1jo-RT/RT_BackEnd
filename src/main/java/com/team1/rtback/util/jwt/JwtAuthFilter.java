@@ -15,9 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// 1. 기능 : JWT 인증 필터 / 토큰 유효성 검사
+// 1. 기능   : JWT 인증 필터 / 토큰 유효성 검사
 // 2. 작성자 : 조소영
-// 3. 생성날자 : 2022-12-16
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
