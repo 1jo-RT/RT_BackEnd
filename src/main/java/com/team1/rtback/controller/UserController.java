@@ -13,10 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 // 1. 기능    : 회원 관련 종합 컨트롤러 (회원가입, 로그인)
 // 2. 작성자  : 조소영
@@ -48,6 +50,14 @@ public class UserController {
     public ResponseEntity<?> delete (@AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.deleteUser(userDetails.getUser());
         return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.USER_DELETE_OK));
+    }
+
+    // 프로필 이미지 업로드
+    @PutMapping("/thumb")
+    public ResponseEntity<?> thumbNailUpload(@RequestPart("image") MultipartFile multipartFile,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        userService.thumbNailUpload(multipartFile, userDetails.getUser());
+        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.THUMBNAIL_UPLOAD_OK));
     }
 
     // 카카오 로그인

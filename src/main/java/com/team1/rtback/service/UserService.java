@@ -1,6 +1,5 @@
 package com.team1.rtback.service;
 
-import com.team1.rtback.dto.global.GlobalDto;
 import com.team1.rtback.dto.user.*;
 import com.team1.rtback.entity.Board;
 import com.team1.rtback.entity.User;
@@ -13,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.team1.rtback.exception.ErrorCode.*;
@@ -44,9 +45,10 @@ public class UserService {
         }
 
         String encodePassword = passwordEncoder.encode(signUpRequestDto.getPassword());
+        String thumbNail = "";
 
         // 2. 암호화 및 저장
-        User user = new User(signUpRequestDto.getUserId(), signUpRequestDto.getUsername(), encodePassword, UserRoleEnum.USER);
+        User user = new User(signUpRequestDto.getUserId(), signUpRequestDto.getUsername(), thumbNail, encodePassword, UserRoleEnum.USER);
         userRepository.save(user);
 
     }
@@ -67,6 +69,18 @@ public class UserService {
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUserId(), user.getUsername(), UserRoleEnum.USER.getAuthority()));
 
     }
+
+
+    // 유저 프로필 이미지 등록
+    public void thumbNailUpload(MultipartFile multipartFile, User user) throws IOException {
+        String thumbNail;
+
+        thumbNail = s3Uploader.thumbNailUpload(multipartFile, user);
+
+        user.updateThumb(thumbNail);
+        userRepository.save(user);
+    }
+
 
     @Transactional
     public void deleteUser(User user){

@@ -20,6 +20,9 @@ public class User {
     private String userId;                              // 유저 아이디
 
     @Column
+    private String thumbNail;
+
+    @Column
     private Long kakaoId;                               //
 
     @Column(nullable = false, unique = true)
@@ -36,9 +39,10 @@ public class User {
     private UserRoleEnum role;                          // 유저 권한 정보
 
     // 유저 생성 메서드
-    public User(String userId, String username, String password,  UserRoleEnum role){
+    public User(String userId, String username, String thumbNail, String password, UserRoleEnum role){
         this.userId = userId;
         this.username = username;
+        this.thumbNail = thumbNail;
         this.password = password;
         this.role = role;
     }
@@ -56,6 +60,10 @@ public class User {
     public User kakaoIdUpdate(Long kakaoId){
         this.kakaoId = kakaoId;
         return this;
+    }
+
+    public void updateThumb(String imgUrl) {
+        this.thumbNail = imgUrl;
     }
 }
 
