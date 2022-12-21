@@ -37,7 +37,7 @@ public class UserController {
 
     // 폼 로그인
     @PostMapping("/login")
-    public void login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
         userService.login(loginRequestDto, response);
 //        String createToken = userService.login(loginRequestDto, response);
 //        System.out.println("================================== createToken = " + createToken);
@@ -57,9 +57,11 @@ public class UserController {
 
     // 카카오 로그인
     @GetMapping("/kakao/callback")
-    public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+    public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드
         // 인가코드를 서비스로 전달
-        kakaoService.kakaoLogin(code, response);
+        String createToken = kakaoService.kakaoLogin(code, response);
+//        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.LOGIN_OK));
+        return "redirect:https://localhost:3000/token="+ createToken;
     }
 }
