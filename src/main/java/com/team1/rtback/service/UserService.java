@@ -7,6 +7,7 @@ import com.team1.rtback.entity.UserRoleEnum;
 import com.team1.rtback.repository.BoardLikeRepository;
 import com.team1.rtback.repository.BoardRepository;
 import com.team1.rtback.repository.CommentRepository;
+import com.team1.rtback.exception.CustomException;
 import com.team1.rtback.repository.UserRepository;
 import com.team1.rtback.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import static com.team1.rtback.dto.global.SuccessCode.JOIN_OK;
 import static com.team1.rtback.dto.global.SuccessCode.LOGIN_OK;
+import static com.team1.rtback.exception.ErrorCode.*;
 
 // 1. 기능   : 유저 서비스
 // 2. 작성자 : 조소영
@@ -39,7 +41,7 @@ public class UserService {
     public SignUpResponseDto signup (SignUpRequestDto signUpRequestDto){
         // 1. 중복 여부 검사
         if(userRepository.existsByUserId(signUpRequestDto.getUserId())){
-            throw new IllegalArgumentException("존재하는 아이디 입니다");
+            throw new CustomException(DUPLICATED_USERID);
         }
 
         String encodePassword = passwordEncoder.encode(signUpRequestDto.getPassword());
@@ -57,11 +59,11 @@ public class UserService {
         String password = loginRequestDto.getPassword();
 
         User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new IllegalAccessError("유저가 존재하지 않습니다.")
+                () -> new CustomException(NOT_FOUND_USER)
         );
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalAccessError("패스워드가 일치하지 않습니다.");
+            throw new CustomException(NOT_MATCH_PASSWORD);
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUserId(), user.getUsername(), UserRoleEnum.USER.getAuthority()));
