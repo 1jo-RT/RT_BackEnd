@@ -20,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 유저 고유번호 조회
     Optional<User> findByUserId(String userId);
+
+    Optional<User> findByKakaoId(Long id);
+    Optional<User> findByEmail(String email);
+
 }

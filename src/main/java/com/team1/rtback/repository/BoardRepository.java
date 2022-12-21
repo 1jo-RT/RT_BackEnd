@@ -1,6 +1,7 @@
 package com.team1.rtback.repository;
 
 import com.team1.rtback.entity.Board;
+import com.team1.rtback.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,5 +13,5 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     // 모든 게시글 내림차순 조회
     List<Board> findAllByOrderByCreatedAtDesc();
-
+    List<Board> deleteAllByUser(User user);
 }
