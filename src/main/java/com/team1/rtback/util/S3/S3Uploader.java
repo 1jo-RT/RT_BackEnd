@@ -41,12 +41,12 @@ public class S3Uploader {
             return user.getThumbNail();
             // 프로필 이미지가 빈값이거나 null 값이면 새로운 이미지를 업로드
         } else if (user.getThumbNail().equals("") || user.getThumbNail() == null) {
-            return ImgUpload(multipartFile, "user");
+            return ImgUpload(multipartFile, "board");
         } else {
             // 그 외의 경우엔 기존의 파일 삭제 후 새롭게 업로드 즉, 교체
             String filename = user.getThumbNail().substring(54);
             deleteFile(filename);
-            return ImgUpload(multipartFile, "user");
+            return ImgUpload(multipartFile, "board");
         }
     }
 

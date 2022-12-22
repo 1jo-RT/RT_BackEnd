@@ -11,11 +11,9 @@ import com.team1.rtback.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -59,7 +57,7 @@ public class UserController {
     }
 
     // 프로필 이미지 업로드
-    @PutMapping("/thumb")
+    @PostMapping("/thumb")
     public ResponseEntity<?> thumbNailUpload(@RequestPart("image") MultipartFile multipartFile,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         System.out.println("================================== 1");
