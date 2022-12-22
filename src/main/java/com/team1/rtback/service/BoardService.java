@@ -108,6 +108,7 @@ public class BoardService {
     }
 
     // 전체 게시글 가져오기 (로그인)
+/*
     public List<BoardResponseDto> getAllBoard(HttpServletRequest request) {
         // 1. 토큰 검증은 게시글에 좋아요를 했는지 안했는지 판별하기 위해서 존재한다.
         String token = jwtUtil.resolveToken(request);
@@ -139,9 +140,10 @@ public class BoardService {
         }
         return result;
     }
+*/
 
     // 단건 게시글 가져오기 (로그인)
-    public List<BoardResponseDto> getBoard(Long boardId, HttpServletRequest request) {
+/*    public List<BoardResponseDto> getBoard(Long boardId, HttpServletRequest request) {
         // 1. 토큰 검증은 게시글에 좋아요를 했는지 안했는지 판별하기 위해서 존재한다.
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -173,120 +175,132 @@ public class BoardService {
             return boardList;
         }
         return result;
-    }
+    }*/
 
     @Transactional
     // 게시글 작성
-    public BoardResponseDto createBoard(BoardRequestDto requestDto, MultipartFile multipartFile, User user) throws IOException {
+    public BoardResponseDto createBoard(BoardRequestDto requestDto) throws IOException {
         // 1. 이미지 URL 을 담기 위한 빈 문자열
         String imgName;
-
+        User user = userRepository.findById((long) 1).orElseThrow(
+                () -> new IllegalArgumentException("몰루"));
         // 2. 이미지 업로드 서비스 작동
-        if (!multipartFile.isEmpty()) {
+        /*if (!multipartFile.isEmpty()) {
             imgName = s3Uploader.boardImgUpload(multipartFile);
         } else {
             imgName = "";
-        }
+        }*/
 
         // 3. 새로운 게시글 생성 및 DB 생성
+        imgName = "";
         Board board = new Board(requestDto, user, imgName);
+        boardRepository.save(board);
 
         // 세이브가 리턴을 해줌으로 인해서 boardResult 에서 게시글 번호를 가져올 수 있게 된다.
         // 여기서 말하는 리턴은 세이브가 저장해준 값을 리턴해준다고 한다.
-        Board boardResult = boardRepository.save(board);
+        /*Board boardResult = boardRepository.save(board);*/
 
         // 4. 새로운 게시글 이미지 생성 및 DB 생성
-        BoardImage boardImage = new BoardImage(boardResult.getId(), user.getId(), imgName);
-        boardImageRepository.save(boardImage);
+/*        BoardImage boardImage = new BoardImage(boardResult.getId(), user.getId(), imgName);
+        boardImageRepository.save(boardImage);*/
 
         return new BoardResponseDto(board, user.getId());
     }
 
     // 게시글 수정
     @Transactional
-    public BoardResponseDto updateBoard(Long boardId, BoardRequestDto requestDto, MultipartFile multipartFile, User user) throws IOException {
+    public BoardResponseDto updateBoard(Long boardId, BoardRequestDto requestDto) throws IOException {
         String imgName;
 
         // 1. 요청한 글 존재 여부 확인 및 가져오기
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_BOARD));
 
-        // 2. 요청한 이미지 테이블 존재 확인 및 가져오기
+        /*// 2. 요청한 이미지 테이블 존재 확인 및 가져오기
         BoardImage boardImage = boardImageRepository.findByUserIdxAndBoardIdx(user.getId(), board.getId()).orElseThrow(
-                () -> new CustomException(AUTHORIZATION));
+                () -> new CustomException(AUTHORIZATION));*/
+
+        User user = userRepository.findById((long) 1).orElseThrow(
+                () -> new IllegalArgumentException("몰루"));
 
         // 3. 글 작성자와 같은 계정인지 검증 후 수정
-        if (user.getId().equals(board.getUser().getId())) {
+        /*if (user.getId().equals(board.getUser().getId())) {
             board.update(requestDto, user);
         } else
-            throw new CustomException(AUTHORIZATION);
+            throw new CustomException(AUTHORIZATION);*/
 
         // 4. 이미지 s3 수정 업로드 서비스 실행
-        imgName = s3Uploader.boardImgUpdate(multipartFile, boardId);
+//        imgName = s3Uploader.boardImgUpdate(multipartFile, boardId);
 
         // 5. 게시글 및 이미지 테이블 수정하기
-        board.update(requestDto, user, imgName);
-        boardImage.update(imgName);
+        board.update(requestDto, user);
+//        boardImage.update(imgName);
 
         return new BoardResponseDto(board, user.getId());
     }
 
     // 게시글 삭제
-    public ResponseEntity<GlobalDto> deleteBoard(Long boardId, User user) {
+    public ResponseEntity<GlobalDto> deleteBoard(Long boardId) {
 
         // 1. 요청한 글 존재 여부 확인
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_BOARD)
         );
 
+        User user = userRepository.findById((long) 1).orElseThrow(
+                () -> new IllegalArgumentException("몰루"));
+
         // 2. 삭제 권한 확인
-        if (!user.getId().equals(board.getUser().getId()))
-            throw new CustomException(AUTHORIZATION);
+        /*if (!user.getId().equals(board.getUser().getId()))
+            throw new CustomException(AUTHORIZATION);*/
 
         // 3. 요청한 글의 모든 댓글 리스트 가져오기
         List<Comment> commentList = commentRepository.findAllByBoard_IdOrderByCreatedAtDesc(boardId);
 
         // 4. 삭제 로직
-        if (!board.getImgUrl().equals(""))
-            s3Uploader.deleteFile(board.getImgUrl().substring(54));
+        /*if (!board.getImgUrl().equals(""))
+            s3Uploader.deleteFile(board.getImgUrl().substring(54));*/
 
         // 5. 요청한 글의 모든 좋아요 리스트 가져오기
-        List<BoardLike> boardLikeList = boardLikeRepository.findAllByBoardId(boardId);
+//        List<BoardLike> boardLikeList = boardLikeRepository.findAllByBoardId(boardId);
 
         // 6. 모든 댓글 및 좋아요 삭제 후 글 삭제
-        boardLikeRepository.deleteAll(boardLikeList);
+//        boardLikeRepository.deleteAll(boardLikeList);
 
         commentRepository.deleteAll(commentList);
         boardRepository.delete(board);
-        boardImageRepository.deleteById(boardId);
+//        boardImageRepository.deleteById(boardId);
 
         return ResponseEntity.ok().body(new GlobalDto(BOARD_DELETE_OK));
     }
 
     // 유저의 게시글 좋아요 체크
-    @Transactional(readOnly = true)
-    public boolean checkBoardLike(Long boardId, Long userId) {
-        // DB 에서 해당 유저의 게시글 좋아요 여부 확인
-        return boardLikeRepository.existsByBoardIdAndUserId(boardId, userId);
-    }
+//    @Transactional(readOnly = true)
+//    public boolean checkBoardLike(Long boardId, Long userId) {
+//        // DB 에서 해당 유저의 게시글 좋아요 여부 확인
+//        return boardLikeRepository.existsByBoardIdAndUserId(boardId, userId);
+//    }
 
     // 게시글 좋아요 생성 및 삭제
-    @Transactional
-    public ResponseEntity<GlobalDto> createBoardLike(Long boardId, User user) {
-        // 1. 요청한 글이 DB 에 존재하는지 확인
-        Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new CustomException(NOT_FOUND_BOARD));
-
-        // 2. 해당 유저의 게시글 좋아요 여부를 확인해서 false 라면
-        if (!checkBoardLike(boardId, user.getId())) {
-            // 3. 즉시 해당 유저의 게시글 좋아요를 DB 에 저장
-            boardLikeRepository.saveAndFlush(new BoardLike(board, user));
-            return ResponseEntity.ok().body(new GlobalDto(BOARD_LIKE_OK));
-            // 4. 게시글 좋아요 여부가 true 라면, 해당 유저의 게시글 좋아요를 DB 에서 삭제
-        } else {
-            boardLikeRepository.deleteByBoardIdAndUserId(boardId, user.getId());
-            return ResponseEntity.ok().body(new GlobalDto(BOARD_LIKE_CANCEL));
-        }
-    }
+//    @Transactional
+//    public ResponseEntity<GlobalDto> createBoardLike(Long boardId) {
+//        User user = userRepository.findById((long) 1).orElseThrow(
+//                () -> new IllegalArgumentException("몰루"));
+//
+//        // 1. 요청한 글이 DB 에 존재하는지 확인
+//        Board board = boardRepository.findById(boardId).orElseThrow(
+//                () -> new CustomException(NOT_FOUND_BOARD));
+//
+//        // 2. 해당 유저의 게시글 좋아요 여부를 확인해서 false 라면
+//        if (!checkBoardLike(boardId, user.getId())) {
+//            // 3. 즉시 해당 유저의 게시글 좋아요를 DB 에 저장
+//            boardLikeRepository.saveAndFlush(new BoardLike(board, user));
+//            return ResponseEntity.ok().body(new GlobalDto(BOARD_LIKE_OK));
+//            // 4. 게시글 좋아요 여부가 true 라면, 해당 유저의 게시글 좋아요를 DB 에서 삭제
+//        } else {
+//            boardLikeRepository.deleteByBoardIdAndUserId(boardId, user.getId());
+//            return ResponseEntity.ok().body(new GlobalDto(BOARD_LIKE_CANCEL));
+//        }
+//    }
 
 }

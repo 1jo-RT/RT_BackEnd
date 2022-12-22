@@ -26,46 +26,39 @@ public class BoardController {
 
     // 전체 글 조회
     @GetMapping
-    public ResponseEntity<?> getAllBoard(HttpServletRequest request) {
-        return new ResponseEntity<>(boardService.getAllBoard(request), (HttpStatus.OK));
+    public ResponseEntity<?> getAllBoard() {
+        return new ResponseEntity<>(boardService.getBoardListAll(), (HttpStatus.OK));
     }
 
     // 단건 글 조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<?> getBoard(@PathVariable Long boardId,
-                                      HttpServletRequest request) {
-        return new ResponseEntity<>(boardService.getBoard(boardId, request), HttpStatus.OK);
+    public ResponseEntity<?> getBoard(@PathVariable Long boardId) {
+        return new ResponseEntity<>(boardService.getBoardList(boardId), HttpStatus.OK);
     }
 
     // 새 글 작성
     @PostMapping(value = "/newboard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> createBoard(@RequestPart BoardRequestDto requestDto,
-                                         @RequestPart("image") MultipartFile multipartFile,
-                                         @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return new ResponseEntity<>(boardService.createBoard(requestDto, multipartFile, userDetails.getUser()), HttpStatus.OK);
+    public ResponseEntity<?> createBoard(@RequestBody BoardRequestDto requestDto) throws IOException {
+        return new ResponseEntity<>(boardService.createBoard(requestDto), HttpStatus.OK);
     }
 
     // 글 수정
     @PutMapping("/newboard/{boardId}")
     public ResponseEntity<?> updateBoard(@PathVariable Long boardId,
-                                         @RequestPart BoardRequestDto requestDto,
-                                         @RequestPart("image") MultipartFile multipartFile,
-                                         @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return new ResponseEntity<>(boardService.updateBoard(boardId, requestDto, multipartFile, userDetails.getUser()), HttpStatus.OK);
+                                         @RequestBody BoardRequestDto requestDto) throws IOException {
+        return new ResponseEntity<>(boardService.updateBoard(boardId, requestDto), HttpStatus.OK);
     }
 
     // 게시글 삭제
     @DeleteMapping("/delboard/{boardId}")
-    public ResponseEntity<?> deleteBoard(@PathVariable Long boardId,
-                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.deleteBoard(boardId, userDetails.getUser());
+    public ResponseEntity<?> deleteBoard(@PathVariable Long boardId) {
+        return boardService.deleteBoard(boardId);
     }
 
     // 게시글 좋아요
-    @PostMapping("/{boardId}/like")
-    public ResponseEntity<?> boardLike(@PathVariable Long boardId,
-                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.createBoardLike(boardId, userDetails.getUser());
-    }
+//    @PostMapping("/{boardId}/like")
+//    public ResponseEntity<?> boardLike(@PathVariable Long boardId) {
+//        return boardService.createBoardLike(boardId);
+//    }
 
 }

@@ -57,14 +57,14 @@ public class UserController {
     }
 
     // 프로필 이미지 업로드
-    @PostMapping("/thumb")
-    public ResponseEntity<?> thumbNailUpload(@RequestPart("image") MultipartFile multipartFile,
-                                             @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        System.out.println("================================== 1");
-        userService.thumbNailUpload(multipartFile, userDetails.getUser());
-        System.out.println("================================== 5");
-        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.THUMBNAIL_UPLOAD_OK));
-    }
+//    @PostMapping("/thumb")
+//    public ResponseEntity<?> thumbNailUpload(@RequestPart("image") MultipartFile multipartFile,
+//                                             @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+//        System.out.println("================================== 1");
+//        userService.thumbNailUpload(multipartFile, userDetails.getUser());
+//        System.out.println("================================== 5");
+//        return ResponseEntity.ok().body(new GlobalDto(GlobalEnum.THUMBNAIL_UPLOAD_OK));
+//    }
 
     // 카카오 로그인
     @GetMapping("/kakao/callback")
